@@ -1,0 +1,12 @@
+name: docx-converter-demo
+services:
+  pandoc:
+    image: pandoc/core:3.7.0.2
+    volumes:
+      - ./main:/app/main
+      - ./internal:/app/internal
+      - ./tmp:/app/tmp
+    working_dir: /app
+    entrypoint: ["./main"]
+    ports:
+      - "8080:8080"
