@@ -9,18 +9,18 @@ const isHtml = (str: string) => /<\/?[a-z][\s\S]*>/i.test(str.trim());
 
 const CourseInfo = ({ course }: Props) => {
   return (
-    <div className="w-full max-w-5xl mx-auto bg-white rounded-xl border border-gray-200 p-8 shadow space-y-6 mt-4">
+    <div className="w-full max-w-5xl mx-auto bg-white rounded-xl border border-gray-200 p-8 shadow space-y-6 mt-4 max-h-[70vh] overflow-y-auto">
       <h2 className="text-2xl font-semibold text-blue-700 mb-3">
         Course Information
       </h2>
 
       {/* Block fields, one per line */}
-      <div className="space-y-1 text-sm">
+      <div className="space-y-6 text-sm">
         <div>
           <b>ชื่อหลักสูตร (TH):</b> {course.title_th}
         </div>
         <div>
-          <b>ชื่อหลักสูตร (EN):</b> {course.title_en}
+          <b>ชื่อหลักสูตร (EN):</b> {course.title_en || "-"}
         </div>
         <div>
           <b>ดำเนินการโดย:</b> {course.organized_by}
@@ -32,15 +32,29 @@ const CourseInfo = ({ course }: Props) => {
           <b>กลุ่มเป้าหมาย:</b> {course.target?.join(", ")}
         </div>
         <div>
-          <b>เหตุผลในการจัดหลักสูตร:</b> {course.rationale?.join("; ")}
+          <b>เหตุผลในการจัดหลักสูตร:</b>
+          <div className="space-y-4 mt-2">
+            {course.rationale?.map((item, idx) => (
+              <div key={idx} className="pl-4">
+                {item}
+              </div>
+            ))}
+          </div>
         </div>
         <div>
-          <b>วัตถุประสงค์ของหลักสูตร:</b> {course.objective?.join("; ")}
+          <b>วัตถุประสงค์ของหลักสูตร:</b>
+          <div className="space-y-4 mt-2">
+            {course.objective?.map((item, idx) => (
+              <div key={idx} className="pl-4">
+                {item}
+              </div>
+            ))}
+          </div>
         </div>
         {/* Content */}
         <div>
           <b>โครงสร้างหรือเนื้อหาของหลักสูตร:</b>
-          <div className="mt-1 space-y-1">
+          <div className="space-y-4 mt-2">
             {course.content?.map((item, idx) =>
               isHtml(item) ? (
                 <div
@@ -61,7 +75,7 @@ const CourseInfo = ({ course }: Props) => {
         {/* Evaluation */}
         <div>
           <b>การประเมินผลตลอดหลักสูตร:</b>
-          <div className="mt-1 space-y-1">
+          <div className="space-y-4 mt-2">
             {course.evaluation?.map((item, idx) =>
               isHtml(item) ? (
                 <div
@@ -82,7 +96,14 @@ const CourseInfo = ({ course }: Props) => {
           <b>คำสำคัญสำหรับการสืบค้น:</b> {course.keywords?.join(", ")}
         </div>
         <div>
-          <b>คำอธิบายหลักสูตรอย่างย่อ:</b> {course.overview?.join("; ")}
+          <b>คำอธิบายหลักสูตรอย่างย่อ:</b>
+          <div className="space-y-4 mt-2">
+            {course.overview?.map((item, idx) => (
+              <div key={idx} className="pl-4">
+                {item}
+              </div>
+            ))}
+          </div>
         </div>
         <div>
           <b>วันเริ่มต้นการลงทะเบียน:</b> {course.start_enroll?.join(", ")}
@@ -110,10 +131,12 @@ const CourseInfo = ({ course }: Props) => {
                 key={idx}
                 className="bg-gray-50 border border-gray-200 rounded p-3 shadow-sm text-sm"
               >
-                <div>
-                  <b>ชื่อ-สกุล:</b> {contact.prefix}
-                  {contact.name} {contact.surname}
-                </div>
+                {!contact.department && (
+                  <div>
+                    <b>ชื่อ-สกุล:</b> {contact.prefix}
+                    {contact.name} {contact.surname}
+                  </div>
+                )}
                 {contact.position && (
                   <div>
                     <b>ตำแหน่ง:</b> {contact.position}
