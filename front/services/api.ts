@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "@/lib/axios";
 import type { CourseInfo } from "@/types/course_info";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -13,11 +13,14 @@ export async function uploadCourseDoc(file: File): Promise<CourseInfo> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await axios.post(BACKEND_URL + "/convert", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    timeout: 60000,
-  });
-  return res.data;
+  try {
+    const res = await api.post("/convert", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data;
+  } catch (error) {
+    throw new Error("Failed to upload document");
+  }
 }
