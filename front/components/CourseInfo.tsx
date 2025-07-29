@@ -1,11 +1,9 @@
 import type { CourseInfo } from "@/types/course_info";
-import TextOrHtml from "@/components/TextOrHtml";
+import { isHtml, TextOrHtml } from "@/components/TextOrHtml";
 
 interface Props {
   course: CourseInfo;
 }
-
-const isHtml = (str: string) => /<\/?[a-z][\s\S]*>/i.test(str.trim());
 
 const CourseInfo = ({ course }: Props) => {
   return (
@@ -65,7 +63,7 @@ const CourseInfo = ({ course }: Props) => {
                 </div>
               ) : (
                 <p key={idx} className="pl-2">
-                  {item}
+                  <TextOrHtml text={item} />
                 </p>
               )
             )}
@@ -86,7 +84,7 @@ const CourseInfo = ({ course }: Props) => {
                 </div>
               ) : (
                 <p key={idx} className="pl-2">
-                  {item}
+                  <TextOrHtml text={item} />
                 </p>
               )
             )}

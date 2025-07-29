@@ -1,13 +1,28 @@
+import MathText from "@/components/MathText";
+import parse, { HTMLReactParserOptions } from "html-react-parser";
+
 interface TextOrHtmlProps {
   text: string;
 }
 
+const isHtml = (text: string) => /<\/?[a-z][\s\S]*>/i.test(text.trim());
+
 const TextOrHtml = ({ text }: TextOrHtmlProps) => {
-  // เช็คถ้าเป็น HTML tag จะ render แบบ html, ถ้าไม่ใช่ให้แสดงเป็น text
-  if (/</.test(text) && /<\/?[a-z][\s\S]*>/i.test(text)) {
-    return <span dangerouslySetInnerHTML={{ __html: text }} />;
+  if (isHtml(text)) {
+    const options: HTMLReactParserOptions = {
+      replace(domNode) {
+        // ใส่ MathText เฉพาะ text node ที่เจอ $...$ หรือ $$...$$
+        // @ts-ignore
+        if (domNode.type === "text" && domNode.data?.match(/\$.*?\$/)) {
+          // @ts-ignore
+          return <MathText text={domNode.data} />;
+        }
+        return undefined;
+      },
+    };
+    return <>{parse(text, options)}</>;
   }
-  return <span>{text}</span>;
+  return <MathText text={text} />;
 };
 
-export default TextOrHtml;
+export { isHtml, TextOrHtml };
