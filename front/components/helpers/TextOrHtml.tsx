@@ -1,4 +1,4 @@
-import MathText from "@/components/MathText";
+import MathText from "@/components/helpers/MathText";
 import parse, { HTMLReactParserOptions } from "html-react-parser";
 
 interface TextOrHtmlProps {

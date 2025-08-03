@@ -1,5 +1,5 @@
 import type { CourseInfo } from "@/types/course_info";
-import { isHtml, TextOrHtml } from "@/components/TextOrHtml";
+import { isHtml, TextOrHtml } from "@/components/helpers/TextOrHtml";
 
 interface Props {
   course: CourseInfo;
