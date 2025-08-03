@@ -4,7 +4,7 @@ import Loading from "@/components/Loading";
 import Failed from "@/components/Failed";
 import CourseInfo from "@/components/CourseInfo";
 import type { CourseInfo as CourseInfoType } from "@/types/course_info";
-import { uploadCourseDoc } from "@/services/api";
+import { convertCourseDoc } from "@/lib/api/convert";
 
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -24,7 +24,7 @@ export default function Home() {
     setError(false);
     setCourse(null);
     try {
-      const data = await uploadCourseDoc(files[0]);
+      const data = await convertCourseDoc(files[0]);
       setCourse(data);
       setLoading(false);
     } catch (err) {
