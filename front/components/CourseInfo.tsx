@@ -14,21 +14,27 @@ const CourseInfo = ({ course }: Props) => {
 
       {/* Block fields, one per line */}
       <div className="space-y-6 text-sm">
+        {/* Course Title (TH) */}
         <div>
           <b>ชื่อหลักสูตร (TH):</b> {course.title_th}
         </div>
+        {/* Course Title (EN) */}
         <div>
           <b>ชื่อหลักสูตร (EN):</b> {course.title_en || "-"}
         </div>
+        {/* Organized By */}
         <div>
           <b>ดำเนินการโดย:</b> {course.organized_by}
         </div>
+        {/* Enrollment Limit */}
         <div>
           <b>จำนวนผู้เข้าร่วม:</b> {course.enroll_limit}
         </div>
+        {/* Target */}
         <div>
           <b>กลุ่มเป้าหมาย:</b> {course.target?.join(", ")}
         </div>
+        {/* Rationale */}
         <div>
           <b>เหตุผลในการจัดหลักสูตร:</b>
           <div className="space-y-4 mt-2">
@@ -39,6 +45,7 @@ const CourseInfo = ({ course }: Props) => {
             ))}
           </div>
         </div>
+        {/* Objective */}
         <div>
           <b>วัตถุประสงค์ของหลักสูตร:</b>
           <div className="space-y-4 mt-2">
@@ -53,19 +60,20 @@ const CourseInfo = ({ course }: Props) => {
         <div>
           <b>โครงสร้างหรือเนื้อหาของหลักสูตร:</b>
           <div className="space-y-4 mt-2">
-            {course.content?.map((item, idx) =>
-              isHtml(item) ? (
-                <div
-                  key={idx}
-                  className="border border-gray-200 rounded px-3 py-2 bg-gray-50"
-                >
-                  <TextOrHtml text={item} />
-                </div>
-              ) : (
-                <p key={idx} className="pl-2">
-                  <TextOrHtml text={item} />
-                </p>
+            {course.content?.length ? (
+              course.content.map((item, idx) =>
+                isHtml(item) ? (
+                  <div key={idx} className="overflow-x-auto">
+                    <TextOrHtml text={item} />
+                  </div>
+                ) : (
+                  <p key={idx} className="pl-2">
+                    <TextOrHtml text={item} />
+                  </p>
+                )
               )
+            ) : (
+              <div className="pl-2 text-gray-500">-</div>
             )}
           </div>
         </div>
@@ -74,25 +82,28 @@ const CourseInfo = ({ course }: Props) => {
         <div>
           <b>การประเมินผลตลอดหลักสูตร:</b>
           <div className="space-y-4 mt-2">
-            {course.evaluation?.map((item, idx) =>
-              isHtml(item) ? (
-                <div
-                  key={idx}
-                  className="border border-gray-200 rounded px-3 py-2 bg-gray-50"
-                >
-                  <TextOrHtml text={item} />
-                </div>
-              ) : (
-                <p key={idx} className="pl-2">
-                  <TextOrHtml text={item} />
-                </p>
+            {course.evaluation?.length ? (
+              course.evaluation.map((item, idx) =>
+                isHtml(item) ? (
+                  <div key={idx} className="overflow-x-auto">
+                    <TextOrHtml text={item} />
+                  </div>
+                ) : (
+                  <p key={idx} className="pl-2">
+                    <TextOrHtml text={item} />
+                  </p>
+                )
               )
+            ) : (
+              <div className="pl-2 text-gray-500">-</div>
             )}
           </div>
         </div>
+        {/* Keywords */}
         <div>
           <b>คำสำคัญสำหรับการสืบค้น:</b> {course.keywords?.join(", ")}
         </div>
+        {/* Course Overview */}
         <div>
           <b>คำอธิบายหลักสูตรอย่างย่อ:</b>
           <div className="space-y-4 mt-2">
@@ -103,23 +114,27 @@ const CourseInfo = ({ course }: Props) => {
             ))}
           </div>
         </div>
+        {/* Enrollment Period */}
         <div>
           <b>วันเริ่มต้นการลงทะเบียน:</b> {course.start_enroll?.join(", ")}
         </div>
         <div>
           <b>วันสิ้นสุดการลงทะเบียน:</b> {course.end_enroll?.join(", ")}
         </div>
+        {/* Payment Deadline */}
         <div>
           <b>วันสิ้นสุดการชำระเงิน:</b> {course.payment_deadline?.join(", ")}
         </div>
+        {/* Fees */}
         <div>
           <b>ค่าธรรมเนียมในการอบรม:</b> {course.fees?.join(", ")} บาท
         </div>
+        {/* University Fees */}
         <div>
           <b>ค่าบำรุงมหาวิทยาลัย:</b> {course.university_fees} บาท
         </div>
       </div>
-
+      {/* Contacts */}
       <div>
         <b>ข้อมูลในการติดต่อสอบถาม:</b>
         <div className="mt-2 space-y-2">
@@ -172,7 +187,7 @@ const CourseInfo = ({ course }: Props) => {
           )}
         </div>
       </div>
-
+      {/* Categories */}
       <div>
         <b>หมวดหมู่การเรียนรู้:</b> {course.categories?.join(", ")}
       </div>

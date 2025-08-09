@@ -12,9 +12,7 @@ const TextOrHtml = ({ text }: TextOrHtmlProps) => {
     const options: HTMLReactParserOptions = {
       replace(domNode) {
         // ใส่ MathText เฉพาะ text node ที่เจอ $...$ หรือ $$...$$
-        // @ts-ignore
         if (domNode.type === "text" && domNode.data?.match(/\$.*?\$/)) {
-          // @ts-ignore
           return <MathText text={domNode.data} />;
         }
         return undefined;

@@ -27,7 +27,7 @@ export default function Home() {
       const data = await convertCourseDoc(files[0]);
       setCourse(data);
       setLoading(false);
-    } catch (err) {
+    } catch {
       setError(true);
       setLoading(false);
     }
