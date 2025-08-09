@@ -32,12 +32,21 @@ FRONTEND_URL=http://localhost:3000
 
 #### Installation & Run
 
+Before running the backend, make sure to pull the Pandoc Docker image:
+
+```bash
+docker pull pandoc/core:latest
+```
+
+Then start the backend:
+
 ```bash
 cd back
 go run .
 ```
 
 The backend server will start at http://localhost:8080.
+
 > **Note:** Ensure that Docker Desktop is running before starting the backend, as Pandoc conversion is executed in a Docker container.
 
 ### 3. Frontend Setup (front/)
@@ -68,6 +77,8 @@ npm install          # or: yarn install, pnpm install
 npm run dev          # or: yarn dev, pnpm dev
 ```
 
+The frontend server will start at http://localhost:3000.
+
 ## Usage
 
 1.	Open the frontend in your browser.
@@ -79,3 +90,4 @@ npm run dev          # or: yarn dev, pnpm dev
 - **Pandoc errors:** Ensure Docker Desktop is running.
 - **CORS errors:** Check that the backend .env value for FRONTEND_URL matches your frontend URL.
 - **Port conflicts:** If default ports are in use, update the port settings in the backend and frontend.
+
