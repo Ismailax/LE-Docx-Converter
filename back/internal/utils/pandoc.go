@@ -16,7 +16,7 @@ func RunPandocDocker(input, output, format string) error {
 	cmd := exec.Command(
 		"docker", "run", "--rm",
 		"-v", dir + ":/data",
-		"pandoc/core:3.7.0.2",
+		"pandoc/core:latest",
 		inputInContainer, "-t", format, "-o", outputInContainer,
 	)
 	return cmd.Run()
