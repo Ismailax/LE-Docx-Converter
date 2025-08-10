@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@layer base {
+/* @layer base {
   table {
     border-collapse: collapse;
   }
@@ -15,7 +15,7 @@
     margin: revert;
     padding: revert;
   }
-}
+} */
 
 .loader {
   width: 2rem;

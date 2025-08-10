@@ -1,36 +1,46 @@
 import { InlineMath, BlockMath } from "react-katex";
 
-/**
- * แยก text เป็น BlockMath, InlineMath, และ text ธรรมดา
- */
-function renderMathInText(text: string) {
-  // ตัด display math ก่อน ($$...$$)
-  const blockParts = text.split(/(\$\$[\s\S]+?\$\$)/g);
-  return blockParts.map((block, i) => {
-    if (/^\$\$[\s\S]+\$\$$/.test(block.trim())) {
-      // Display math (block)
-      return (
-        <BlockMath key={i} math={block.replace(/^\$\$|\$\$$/g, "").trim()} />
-      );
-    } else {
-      // ตัด inline math ($...$)
-      const inlineParts = block.split(/(\$[^$]+\$)/g);
-      return inlineParts.map((part, j) =>
-        /^\$[^$]+\$$/.test(part.trim()) ? (
-          <InlineMath key={j} math={part.replace(/^\$|\$$/g, "").trim()} />
-        ) : (
-          <span key={j}>{part}</span>
-        )
-      );
-    }
-  });
-}
-
 interface MathTextProps {
   text: string;
   className?: string;
 }
-const MathText: React.FC<MathTextProps> = ({ text, className }) => {
-  return <span className={className}>{renderMathInText(text)}</span>;
+
+// ตรวจว่ามีทั้ง block/inline
+const containsMath = (s: string) => /\$\$[\s\S]+?\$\$|\$[^$]+\$/m.test(s);
+
+function renderMathInText(text: string) {
+  // แยก block $$...$$ ก่อน (ครอบคลุม newline)
+  const blockParts = text.split(/(\$\$[\s\S]+?\$\$)/g);
+
+  return blockParts.map((block, i) => {
+    if (/^\$\$[\s\S]+\$\$$/.test(block.trim())) {
+      const math = block.replace(/^\$\$|\$\$$/g, "").trim();
+      return (
+        <div key={`bm-${i}`} style={{ display: "block" }}>
+          <BlockMath math={math} />
+        </div>
+      );
+    }
+
+    // จากนั้นแยก inline $...$
+    const inlineParts = block.split(/(\$[^$]+\$)/g);
+    return inlineParts.map((part, j) => {
+      if (/^\$[^$]+\$$/.test(part.trim())) {
+        const math = part.replace(/^\$|\$$/g, "").trim();
+        return <InlineMath key={`im-${i}-${j}`} math={math} />;
+      }
+      return <span key={`tx-${i}-${j}`}>{part}</span>;
+    });
+  });
+}
+
+const MathText = ({ text, className }: MathTextProps) => {
+  if (!text) return null;
+  return (
+    <span className={className}>
+      {containsMath(text) ? renderMathInText(text) : text}
+    </span>
+  );
 };
-export default MathText;
+
+export { containsMath, MathText };
