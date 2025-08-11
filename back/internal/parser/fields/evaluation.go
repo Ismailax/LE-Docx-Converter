@@ -1,18 +1,26 @@
 package fields
 
 import (
-	// "fmt"
 	"docx-converter-demo/internal/types"
 	"strings"
 )
 
-// ParseEvaluation: ดึง section การประเมินผล (Course Evaluation)
+// helper: ดึง html-table ถัดไปของ "evaluation"
+func takeNextEvalTable(state *types.ParseTableState) (string, bool) {
+	if state.EvaluationIdx < len(state.Tables.Evaluation) {
+		t := state.Tables.Evaluation[state.EvaluationIdx]
+		state.EvaluationIdx++
+		return t, true
+	}
+	return "", false
+}
+
 func ParseEvaluation(lines []string, i int, output *types.Output, tableState *types.ParseTableState) int {
 	if len(output.Evaluation) > 0 {
 		return i
 	}
 
-	// 1. หา header
+	// หา header "การประเมินผล/Course Evaluation/การวัดและประเมินผล"
 	start := -1
 	for j := i; j < len(lines); j++ {
 		line := strings.TrimSpace(lines[j])
@@ -27,7 +35,6 @@ func ParseEvaluation(lines []string, i int, output *types.Output, tableState *ty
 		}
 	}
 	if start == -1 {
-		// fmt.Println(">> ไม่เจอ header 'การประเมินผลตลอดหลักสูตร'")
 		return i
 	}
 
@@ -41,21 +48,23 @@ func ParseEvaluation(lines []string, i int, output *types.Output, tableState *ty
 		inSpaceTable      bool
 	)
 
-	flushTable := func() {
-		// สำหรับ flush ตารางค้างไว้ก่อน break หรือหลังจบ loop
-		if inTable && tableState.TableIndex < len(tableState.Tables) {
-			blocks = append(blocks, tableState.Tables[tableState.TableIndex])
-			tableState.TableIndex++
+	flush := func() {
+		if inTable {
+			if t, ok := takeNextEvalTable(tableState); ok {
+				blocks = append(blocks, t)
+			}
 			inTable = false
 		}
-		if inDashTable && tableState.TableIndex < len(tableState.Tables) {
-			blocks = append(blocks, tableState.Tables[tableState.TableIndex])
-			tableState.TableIndex++
+		if inDashTable {
+			if t, ok := takeNextEvalTable(tableState); ok {
+				blocks = append(blocks, t)
+			}
 			inDashTable = false
 		}
-		if inSpaceTable && tableState.TableIndex < len(tableState.Tables) {
-			blocks = append(blocks, tableState.Tables[tableState.TableIndex])
-			tableState.TableIndex++
+		if inSpaceTable {
+			if t, ok := takeNextEvalTable(tableState); ok {
+				blocks = append(blocks, t)
+			}
 			inSpaceTable = false
 		}
 		if len(paragraph) > 0 {
@@ -67,26 +76,26 @@ func ParseEvaluation(lines []string, i int, output *types.Output, tableState *ty
 	for k = start + 1; k < len(lines); k++ {
 		line := strings.TrimSpace(lines[k])
 
-		// ===== stop section เมื่อเจอ header 3.x คำสำคัญสำหรับการสืบค้น =====
+		// stop เมื่อเข้าสู่ 3. คำสำคัญสำหรับการสืบค้น
 		if strings.HasPrefix(line, "3.") && strings.Contains(line, "คำสำคัญสำหรับการสืบค้น") {
-			flushTable()
+			flush()
 			break
 		}
 
-		// ===== ascii-table: +...+ =====
-		if !inTable && asciiTableLine.MatchString(line) && tableState.TableIndex < len(tableState.Tables) {
+		// ascii-table
+		if !inTable && asciiTableLine.MatchString(line) {
 			if len(paragraph) > 0 {
 				blocks = append(blocks, strings.Join(paragraph, " "))
 				paragraph = []string{}
 			}
-			// fmt.Printf(">> [DEBUG] เจอ ascii table (+) ที่ line[%d], ดึง html table #%d (ParseEvaluation)\n", k, tableState.TableIndex)
-			blocks = append(blocks, tableState.Tables[tableState.TableIndex])
-			tableState.TableIndex++
 			inTable = true
 			continue
 		}
 		if inTable {
 			if line == "" || (!strings.HasPrefix(line, "+") && !strings.HasPrefix(line, "|")) {
+				if t, ok := takeNextEvalTable(tableState); ok {
+					blocks = append(blocks, t)
+				}
 				inTable = false
 				if line == "" {
 					continue
@@ -96,8 +105,8 @@ func ParseEvaluation(lines []string, i int, output *types.Output, tableState *ty
 			}
 		}
 
-		// ===== dash-table: ---... =====
-		if !inDashTable && dashTableLine.MatchString(line) && tableState.TableIndex < len(tableState.Tables) {
+		// dash-table
+		if !inDashTable && dashTableLine.MatchString(line) {
 			if len(paragraph) > 0 {
 				blocks = append(blocks, strings.Join(paragraph, " "))
 				paragraph = []string{}
@@ -110,9 +119,9 @@ func ParseEvaluation(lines []string, i int, output *types.Output, tableState *ty
 			if dashTableLine.MatchString(line) {
 				dashTableSepCount++
 				if dashTableSepCount == 3 {
-					// fmt.Printf(">> [DEBUG] เจอ dash table (-) ที่ line[%d], ดึง html table #%d (ParseEvaluation)\n", k, tableState.TableIndex)
-					blocks = append(blocks, tableState.Tables[tableState.TableIndex])
-					tableState.TableIndex++
+					if t, ok := takeNextEvalTable(tableState); ok {
+						blocks = append(blocks, t)
+					}
 					inDashTable = false
 					continue
 				}
@@ -121,8 +130,8 @@ func ParseEvaluation(lines []string, i int, output *types.Output, tableState *ty
 			continue
 		}
 
-		// ===== space-table: ----------------- ----------------- ... =====
-		if !inSpaceTable && spaceTableLine.MatchString(line) && tableState.TableIndex < len(tableState.Tables) {
+		// space-table
+		if !inSpaceTable && spaceTableLine.MatchString(line) {
 			if len(paragraph) > 0 {
 				blocks = append(blocks, strings.Join(paragraph, " "))
 				paragraph = []string{}
@@ -131,18 +140,17 @@ func ParseEvaluation(lines []string, i int, output *types.Output, tableState *ty
 			continue
 		}
 		if inSpaceTable {
-			// ถ้าเจอขีด space-table อีกที = ปิด
-			if spaceTableLine.MatchString(line) && tableState.TableIndex < len(tableState.Tables) {
-				// fmt.Printf(">> [DEBUG] เจอ space-table (----) ที่ line[%d], ดึง html table #%d (ParseEvaluation)\n", k, tableState.TableIndex)
-				blocks = append(blocks, tableState.Tables[tableState.TableIndex])
-				tableState.TableIndex++
+			if spaceTableLine.MatchString(line) {
+				if t, ok := takeNextEvalTable(tableState); ok {
+					blocks = append(blocks, t)
+				}
 				inSpaceTable = false
 				continue
 			}
 			continue
 		}
 
-		// ===== paragraph: เก็บข้อความปกติ =====
+		// paragraph
 		if line == "" {
 			if len(paragraph) > 0 {
 				blocks = append(blocks, strings.Join(paragraph, " "))
@@ -153,17 +161,7 @@ func ParseEvaluation(lines []string, i int, output *types.Output, tableState *ty
 		paragraph = append(paragraph, line)
 	}
 
-	// === หลังจบ loop ให้ flush ตารางหรือ paragraph ที่ค้างไว้ ===
-	flushTable()
-
+	flush()
 	output.Evaluation = blocks
-
-	// Debug
-	// fmt.Println("------ DEBUG Evaluation Result ------")
-	// for idx, b := range blocks {
-	// 	fmt.Printf("Eval Block %d: %.100s\n", idx+1, strings.ReplaceAll(b, "\n", "\\n"))
-	// }
-	// fmt.Println("-------------------------------------")
-
 	return start
 }

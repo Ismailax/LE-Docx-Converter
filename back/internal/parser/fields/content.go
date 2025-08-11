@@ -1,7 +1,6 @@
 package fields
 
 import (
-	// "fmt"
 	"docx-converter-demo/internal/types"
 	"regexp"
 	"strings"
@@ -11,13 +10,22 @@ var asciiTableLine = regexp.MustCompile(`^\s*\+[-:=]+.*\+$`)
 var dashTableLine = regexp.MustCompile(`^\s*-{3,}.*$`)
 var spaceTableLine = regexp.MustCompile(`^(\s*-{2,}\s*){2,}$`)
 
-// ParseContent: รองรับ ascii-table (+), dash-table (---), space-table (---- ---- ----)
+// helper: ดึง html-table ถัดไปของ "content"
+func takeNextContentTable(state *types.ParseTableState) (string, bool) {
+	if state.ContentIdx < len(state.Tables.Content) {
+		t := state.Tables.Content[state.ContentIdx]
+		state.ContentIdx++
+		return t, true
+	}
+	return "", false
+}
+
 func ParseContent(lines []string, i int, output *types.Output, tableState *types.ParseTableState) int {
 	if len(output.Content) > 0 {
 		return i
 	}
 
-	// 1. หา header
+	// หา header "เนื้อหาของหลักสูตร"
 	start := -1
 	for j := i; j < len(lines); j++ {
 		line := strings.TrimSpace(lines[j])
@@ -30,7 +38,6 @@ func ParseContent(lines []string, i int, output *types.Output, tableState *types
 		}
 	}
 	if start == -1 {
-		// fmt.Println(">> ไม่เจอ header 'เนื้อหาของหลักสูตร'")
 		return i
 	}
 
@@ -44,20 +51,23 @@ func ParseContent(lines []string, i int, output *types.Output, tableState *types
 		inSpaceTable      bool
 	)
 
-	flushTable := func() {
-		if inTable && tableState.TableIndex < len(tableState.Tables) {
-			contentBlocks = append(contentBlocks, tableState.Tables[tableState.TableIndex])
-			tableState.TableIndex++
+	flush := func() {
+		if inTable {
+			if t, ok := takeNextContentTable(tableState); ok {
+				contentBlocks = append(contentBlocks, t)
+			}
 			inTable = false
 		}
-		if inDashTable && tableState.TableIndex < len(tableState.Tables) {
-			contentBlocks = append(contentBlocks, tableState.Tables[tableState.TableIndex])
-			tableState.TableIndex++
+		if inDashTable {
+			if t, ok := takeNextContentTable(tableState); ok {
+				contentBlocks = append(contentBlocks, t)
+			}
 			inDashTable = false
 		}
-		if inSpaceTable && tableState.TableIndex < len(tableState.Tables) {
-			contentBlocks = append(contentBlocks, tableState.Tables[tableState.TableIndex])
-			tableState.TableIndex++
+		if inSpaceTable {
+			if t, ok := takeNextContentTable(tableState); ok {
+				contentBlocks = append(contentBlocks, t)
+			}
 			inSpaceTable = false
 		}
 		if len(paragraph) > 0 {
@@ -69,27 +79,28 @@ func ParseContent(lines []string, i int, output *types.Output, tableState *types
 	for k = start + 1; k < len(lines); k++ {
 		line := strings.TrimSpace(lines[k])
 
-		// ===== stop section เมื่อเจอ header ถัดไป =====
+		// เจอ header ถัดไปของ section ประเมินผล → ปิด
 		if (strings.HasPrefix(line, "2.4") || strings.HasPrefix(line, "4.")) &&
 			(strings.Contains(line, "Course Evaluation") || strings.Contains(line, "การประเมินผลตลอดหลักสูตร") || strings.Contains(line, "การวัดและประเมินผล")) {
-			flushTable()
+			flush()
 			break
 		}
 
-		// ===== ascii-table: +...+ =====
-		if !inTable && asciiTableLine.MatchString(line) && tableState.TableIndex < len(tableState.Tables) {
+		// ascii-table
+		if !inTable && asciiTableLine.MatchString(line) {
 			if len(paragraph) > 0 {
 				contentBlocks = append(contentBlocks, strings.Join(paragraph, " "))
 				paragraph = []string{}
 			}
-			// fmt.Printf(">> [DEBUG] เจอ ascii table (+) ที่ line[%d], ดึง html table #%d (ParseContent)\n", k, tableState.TableIndex)
-			contentBlocks = append(contentBlocks, tableState.Tables[tableState.TableIndex])
-			tableState.TableIndex++
 			inTable = true
 			continue
 		}
 		if inTable {
 			if line == "" || (!strings.HasPrefix(line, "+") && !strings.HasPrefix(line, "|")) {
+				// ปิดแล้วหยิบ html table
+				if t, ok := takeNextContentTable(tableState); ok {
+					contentBlocks = append(contentBlocks, t)
+				}
 				inTable = false
 				if line == "" {
 					continue
@@ -99,8 +110,8 @@ func ParseContent(lines []string, i int, output *types.Output, tableState *types
 			}
 		}
 
-		// ===== dash-table: ---... =====
-		if !inDashTable && dashTableLine.MatchString(line) && tableState.TableIndex < len(tableState.Tables) {
+		// dash-table
+		if !inDashTable && dashTableLine.MatchString(line) {
 			if len(paragraph) > 0 {
 				contentBlocks = append(contentBlocks, strings.Join(paragraph, " "))
 				paragraph = []string{}
@@ -113,9 +124,9 @@ func ParseContent(lines []string, i int, output *types.Output, tableState *types
 			if dashTableLine.MatchString(line) {
 				dashTableSepCount++
 				if dashTableSepCount == 3 {
-					// fmt.Printf(">> [DEBUG] เจอ dash table (-) ที่ line[%d], ดึง html table #%d (ParseContent)\n", k, tableState.TableIndex)
-					contentBlocks = append(contentBlocks, tableState.Tables[tableState.TableIndex])
-					tableState.TableIndex++
+					if t, ok := takeNextContentTable(tableState); ok {
+						contentBlocks = append(contentBlocks, t)
+					}
 					inDashTable = false
 					continue
 				}
@@ -124,8 +135,8 @@ func ParseContent(lines []string, i int, output *types.Output, tableState *types
 			continue
 		}
 
-		// ===== space-table: ---- ---- ---- =====
-		if !inSpaceTable && spaceTableLine.MatchString(line) && tableState.TableIndex < len(tableState.Tables) {
+		// space-table
+		if !inSpaceTable && spaceTableLine.MatchString(line) {
 			if len(paragraph) > 0 {
 				contentBlocks = append(contentBlocks, strings.Join(paragraph, " "))
 				paragraph = []string{}
@@ -134,17 +145,17 @@ func ParseContent(lines []string, i int, output *types.Output, tableState *types
 			continue
 		}
 		if inSpaceTable {
-			if spaceTableLine.MatchString(line) && tableState.TableIndex < len(tableState.Tables) {
-				// fmt.Printf(">> [DEBUG] เจอ space-table (----) ที่ line[%d], ดึง html table #%d (ParseContent)\n", k, tableState.TableIndex)
-				contentBlocks = append(contentBlocks, tableState.Tables[tableState.TableIndex])
-				tableState.TableIndex++
+			if spaceTableLine.MatchString(line) {
+				if t, ok := takeNextContentTable(tableState); ok {
+					contentBlocks = append(contentBlocks, t)
+				}
 				inSpaceTable = false
 				continue
 			}
 			continue
 		}
 
-		// ===== paragraph: เก็บข้อความปกติ =====
+		// paragraph
 		if line == "" {
 			if len(paragraph) > 0 {
 				contentBlocks = append(contentBlocks, strings.Join(paragraph, " "))
@@ -155,17 +166,7 @@ func ParseContent(lines []string, i int, output *types.Output, tableState *types
 		paragraph = append(paragraph, line)
 	}
 
-	// paragraph/table สุดท้าย
-	flushTable()
-
+	flush()
 	output.Content = contentBlocks
-
-	// Debug: print content blocks
-	// fmt.Println("------ DEBUG Content Result ------")
-	// for idx, b := range contentBlocks {
-	// 	fmt.Printf("Block %d: %.100s\n", idx+1, strings.ReplaceAll(b, "\n", "\\n"))
-	// }
-	// fmt.Println("---------------------------------")
-
 	return start
 }

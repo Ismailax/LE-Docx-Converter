@@ -1,6 +1,13 @@
 package types
 
+type TablesBySection struct {
+	Content    []string
+	Evaluation []string
+	Other      []string
+}
+
 type ParseTableState struct {
-	TableIndex int
-	Tables     []string
+	ContentIdx    int
+	EvaluationIdx int
+	Tables        TablesBySection
 }

@@ -29,8 +29,12 @@ func ParseDocToJSON(plainTextPath string, htmlPath string) ([]byte, error) {
 	}
 
 	// EXTRACT TABLES FROM HTML
-	tables := utils.ExtractTablesFromHTML(htmlPath)
-	tableState := &types.ParseTableState{TableIndex: 0, Tables: tables}
+	tb := utils.ExtractTablesFromHTML(htmlPath)
+	tableState := &types.ParseTableState{
+		ContentIdx:    0,
+		EvaluationIdx: 0,
+		Tables:        tb,
+	}
 
 	var output types.Output
 

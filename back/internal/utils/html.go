@@ -6,10 +6,12 @@ import (
 	"os"
 	"strings"
 
+	"docx-converter-demo/internal/types"
+
 	"github.com/PuerkitoBio/goquery"
 )
 
-func ExtractTablesFromHTML(htmlPath string) []string {
+func ExtractTablesFromHTML(htmlPath string) types.TablesBySection {
 	file, err := os.Open(htmlPath)
 	if err != nil {
 		log.Fatalf("❌ Failed to open HTML file: %v", err)
@@ -21,21 +23,97 @@ func ExtractTablesFromHTML(htmlPath string) []string {
 		log.Fatalf("❌ Failed to parse HTML: %v", err)
 	}
 
-	var tables []string
-	doc.Find("table").Each(func(i int, s *goquery.Selection) {
-		normalizeTable(s)
-		html, err := goquery.OuterHtml(s)
-		if err != nil {
-			log.Printf("⚠️ failed to get table outer html: %v", err)
+	var out types.TablesBySection
+	current := "other"
+
+	// เดินเอกสารตามลำดับ DOM: อัปเดต section เมื่อเจอหัวข้อ, เก็บ table ตาม section
+	doc.Find("body *").Each(func(_ int, s *goquery.Selection) {
+		if sec, ok := detectSection(s); ok {
+			current = sec // "content" | "evaluation"
 			return
 		}
-		// ทำให้กระชับ
-		clean := strings.ReplaceAll(html, "\n", "")
-		clean = strings.TrimSpace(clean)
-		tables = append(tables, clean)
+
+		if goquery.NodeName(s) == "table" {
+			// normalize + เก็บ HTML
+			normalizeTable(s)
+			html, err := goquery.OuterHtml(s)
+			if err != nil {
+				log.Printf("⚠️ failed to get table outer html: %v", err)
+				return
+			}
+			clean := strings.TrimSpace(strings.ReplaceAll(html, "\n", ""))
+
+			switch current {
+			case "content":
+				out.Content = append(out.Content, clean)
+			case "evaluation":
+				out.Evaluation = append(out.Evaluation, clean)
+			default:
+				out.Other = append(out.Other, clean)
+			}
+		}
 	})
 
-	return tables
+	return out
+}
+
+// ---- Section detection ----
+
+func detectSection(s *goquery.Selection) (string, bool) {
+	tag := strings.ToLower(goquery.NodeName(s))
+	text := strings.TrimSpace(s.Text())
+	lt := strings.ToLower(text)
+
+	// ผู้สมัครมักทำหัวข้อเป็น h1..h6 หรือ <p><strong>...</strong></p>
+	isHeadingTag := tag == "h1" || tag == "h2" || tag == "h3" || tag == "h4" || tag == "h5" || tag == "h6"
+
+	// เดาถ้าเป็น <p> ที่ขึ้นต้นด้วยเลขหัวข้อ + มี strong ก็ถือเป็นหัวข้อ
+	if tag == "p" && s.Find("strong").Length() > 0 {
+		strongText := strings.TrimSpace(s.Find("strong").First().Text())
+		if strongText != "" {
+			// normalize spaces
+			norm := func(s string) string {
+				s = strings.ToLower(strings.TrimSpace(s))
+				s = strings.Join(strings.Fields(s), " ")
+				return s
+			}
+			if strings.HasPrefix(norm(lt), norm(strongText)) {
+				isHeadingTag = true
+			}
+		}
+	}
+
+	// คีย์เวิร์ดที่มักใช้ในไฟล์จริง
+	contentKeys := []string{
+		"โครงสร้างหรือเนื้อหาของหลักสูตร",
+		"เนื้อหาของหลักสูตร",
+		"รายละเอียดของหลักสูตร",
+		"course content",
+	}
+	evalKeys := []string{
+		"การวัดและประเมินผล",
+		"การประเมินผลตลอดหลักสูตร",
+		"course evaluation",
+		"เกณฑ์การให้ลำดับขั้น",
+		"ตารางแสดงสัดส่วนการประเมิน",
+	}
+
+	// ถ้าไม่ใช่หัวข้อเลย ก็ไม่ต้องเช็คคีย์เวิร์ด
+	if !isHeadingTag {
+		return "", false
+	}
+
+	for _, k := range contentKeys {
+		if strings.Contains(lt, strings.ToLower(k)) {
+			return "content", true
+		}
+	}
+	for _, k := range evalKeys {
+		if strings.Contains(lt, strings.ToLower(k)) {
+			return "evaluation", true
+		}
+	}
+	return "", false
 }
 
 // --- helpers ---
