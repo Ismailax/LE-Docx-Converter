@@ -34,6 +34,6 @@ type Contact struct {
 	Department string   `json:"department"`
 	Address    string   `json:"address"`
 	Phones     []string `json:"phones"`
-	Email      string   `json:"emails"`
+	Email      string   `json:"email"`
 	Websites   []string `json:"websites"`
 }

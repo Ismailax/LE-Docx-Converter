@@ -5,20 +5,11 @@ import type { CourseInfo } from "@/types/course_info";
 import Editor from "@/components/tinymce/TinyMCE";
 import LabeledInput from "@/components/LabeledInput";
 import Section from "@/components/Section";
-import { isHtml, TextOrHtml } from "./helpers/TextOrHtml";
-import renderMathToHtml from "@/utils/mathToHtml";
+import joinAsHtmlParagraphs from "@/utils/html";
 
 interface Props {
   course: CourseInfo;
 }
-
-const joinAsHtmlParagraphs = (items?: string[]) => {
-  if (!items || items.length === 0) return "";
-  if (items.some((s) => isHtml(s))) return items.join("");
-  return items
-    .map((s) => `<p>${(s ?? "").replace(/\n/g, "<br/>")}</p>`)
-    .join("");
-};
 
 export default function CourseInfo2({ course }: Props) {
   const html = useMemo(
@@ -37,6 +28,7 @@ export default function CourseInfo2({ course }: Props) {
     }),
     [course]
   );
+  console.log("course:", course);
 
   return (
     <div className="w-full max-w-5xl mx-auto bg-white rounded-xl border border-gray-200 p-8 shadow space-y-8 mt-4">
@@ -44,26 +36,21 @@ export default function CourseInfo2({ course }: Props) {
         Course Information
       </h2>
 
-      <div className="space-y-6 text-sm">
-        <LabeledInput
-          label="ชื่อหลักสูตร (TH)"
-          defaultValue={course.title_th}
-        />
-        <LabeledInput
-          label="ชื่อหลักสูตร (EN)"
-          defaultValue={course.title_en || ""}
-        />
-        <LabeledInput
-          label="ดำเนินการโดย"
-          defaultValue={course.organized_by}
-          className="md:col-span-2"
-        />
-        <LabeledInput
-          type="number"
-          label="จำนวนผู้เข้าร่วม"
-          defaultValue={String(course.enroll_limit)}
-        />
-      </div>
+      <LabeledInput label="ชื่อหลักสูตร (TH)" defaultValue={course.title_th} />
+      <LabeledInput
+        label="ชื่อหลักสูตร (EN)"
+        defaultValue={course.title_en || ""}
+      />
+      <LabeledInput
+        label="ดำเนินการโดย"
+        defaultValue={course.organized_by}
+        className="md:col-span-2"
+      />
+      <LabeledInput
+        type="number"
+        label="จำนวนผู้เข้าร่วม"
+        defaultValue={String(course.enroll_limit)}
+      />
 
       <Section title="กลุ่มเป้าหมาย">
         <Editor value={html.target} />
@@ -96,22 +83,19 @@ export default function CourseInfo2({ course }: Props) {
         <Editor value={html.payment_deadline} />
       </Section>
 
-      <div className="space-y-2">
-        <div className="font-medium">ค่าธรรมเนียมในการอบรม (บาท)</div>
+      <Section title="ค่าธรรมเนียมในการอบรม (บาท)">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {(course.fees ?? []).length ? (
-            (course.fees ?? []).map((fee, i) => (
-              <LabeledInput key={i} defaultValue={String(fee)} />
-            ))
+            <LabeledInput defaultValue={(course.fees ?? []).join(", ")} />
           ) : (
             <LabeledInput placeholder="0" />
           )}
         </div>
-      </div>
+      </Section>
 
       <LabeledInput
         type="number"
-        label="ค่าบำรุงมหาวิทยาลัย"
+        label="ค่าบำรุงมหาวิทยาลัย (บาท)"
         defaultValue={String(course.university_fees)}
       />
 
@@ -135,14 +119,12 @@ export default function CourseInfo2({ course }: Props) {
                 className="md:col-span-2"
               />
               <LabeledInput
-                label="โทรศัพท์ (คอมมา , คั่น)"
+                label="โทรศัพท์"
                 defaultValue={(c.phones || []).join(", ")}
-                className="md:col-span-2"
               />
               <LabeledInput
-                label="เว็บไซต์ (คอมมา , คั่น)"
+                label="เว็บไซต์"
                 defaultValue={(c.websites || []).join(", ")}
-                className="md:col-span-2"
               />
             </div>
           ))
