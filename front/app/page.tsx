@@ -3,7 +3,6 @@ import { useRef, useState } from "react";
 import Loading from "@/components/Loading";
 import Failed from "@/components/Failed";
 import CourseInfo from "@/components/CourseInfo";
-import CourseInfo2 from "@/components/CourseInfo2";
 import type { CourseInfo as CourseInfoType } from "@/types/course_info";
 import { convertCourseDoc } from "@/lib/api/convert";
 
@@ -80,7 +79,7 @@ export default function Home() {
 
         {loading && <Loading />}
         {error && <Failed />}
-        {course && <CourseInfo2 course={course} />}
+        {course && <CourseInfo course={course} />}
 
         {(loading || error || course) && (
           <button
