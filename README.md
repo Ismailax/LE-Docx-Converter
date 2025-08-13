@@ -57,7 +57,7 @@ go run ./cmd/server
 
 The backend server will start at http://localhost:8080.
 
-> **Note:** Ensure that Docker Desktop is running before starting the backend, as Pandoc conversion is executed in a Docker container.
+> **Note:** Ensure that Docker Desktop is running before starting the backend, as Pandoc is executed inside a temporary Docker container created from the pandoc/core:latest image.
 
 ### 3. Frontend Setup (front/)
 
@@ -100,5 +100,6 @@ The frontend server will start at http://localhost:3000.
 - **Pandoc errors:** Ensure Docker Desktop is running.
 - **CORS errors:** Check that the backend .env value for FRONTEND_URL matches your frontend URL.
 - **Port conflicts:** If default ports are in use, update the port settings in the backend and frontend.
+
 
 
