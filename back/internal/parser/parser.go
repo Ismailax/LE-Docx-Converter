@@ -56,6 +56,8 @@ func ParseDocToJSON(plainTextPath string, htmlPath string) ([]byte, error) {
 		i = fields.ParseCategories(lines, i, &output)
 	}
 
+	utils.MathifyOutput(&output)
+
 	jsonData, err := json.MarshalIndent(output, "", "  ")
 	if err != nil {
 		return nil, err
