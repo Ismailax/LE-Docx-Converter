@@ -12,16 +12,15 @@ import "tinymce/plugins/importcss";
 
 interface Props {
   value: string;
-  height?: number;
 }
 
-export default function TinyEditor({ value, height = 360 }: Props) {
+const TinyEditor = ({ value }: Props) => {
   return (
     <Editor
       licenseKey="gpl"
       initialValue={value}
       init={{
-        height,
+        height: 360,
         menubar: "file edit view insert format tools",
         plugins: "table lists code autoresize importcss",
         toolbar:
@@ -37,4 +36,6 @@ export default function TinyEditor({ value, height = 360 }: Props) {
       }}
     />
   );
-}
+};
+
+export default TinyEditor;

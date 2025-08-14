@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import type { CourseInfo } from "@/types/course_info";
-import Editor from "@/components/tinymce/TinyMCE";
+import { Editor } from "@/components/tinymce/TinyMCE";
 import LabeledInput from "@/components/LabeledInput";
 import Section from "@/components/Section";
 import joinAsHtmlParagraphs from "@/utils/html";
@@ -35,7 +35,6 @@ const CourseInfo = ({ course }: Props) => {
       <h2 className="text-2xl font-semibold text-blue-700">
         Course Information
       </h2>
-
       <LabeledInput label="ชื่อหลักสูตร (TH)" defaultValue={course.title_th} />
       <LabeledInput
         label="ชื่อหลักสูตร (EN)"
@@ -51,7 +50,6 @@ const CourseInfo = ({ course }: Props) => {
         label="จำนวนผู้เข้าร่วม"
         defaultValue={String(course.enroll_limit)}
       />
-
       <Section title="กลุ่มเป้าหมาย">
         <Editor value={html.target} />
       </Section>
@@ -82,7 +80,7 @@ const CourseInfo = ({ course }: Props) => {
       <Section title="วันสิ้นสุดการชำระเงิน">
         <Editor value={html.payment_deadline} />
       </Section>
-
+      ``
       <Section title="ค่าธรรมเนียมในการอบรม (บาท)">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {(course.fees ?? []).length ? (
@@ -92,13 +90,11 @@ const CourseInfo = ({ course }: Props) => {
           )}
         </div>
       </Section>
-
       <LabeledInput
         type="number"
         label="ค่าบำรุงมหาวิทยาลัย (บาท)"
         defaultValue={String(course.university_fees)}
       />
-
       <div className="space-y-3">
         <div className="font-medium">ข้อมูลในการติดต่อสอบถาม</div>
         {(course.contacts ?? []).length ? (
@@ -132,7 +128,6 @@ const CourseInfo = ({ course }: Props) => {
           <div className="text-gray-500">-</div>
         )}
       </div>
-
       <Section title="หมวดหมู่การเรียนรู้">
         <Editor value={html.categories} />
       </Section>
