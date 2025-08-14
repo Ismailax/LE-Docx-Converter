@@ -6,7 +6,7 @@ import CourseInfo from "@/components/CourseInfo";
 import type { CourseInfo as CourseInfoType } from "@/types/course_info";
 import { convertCourseDoc } from "@/lib/api/convert";
 
-export default function Home() {
+const Home = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -92,4 +92,6 @@ export default function Home() {
       </div>
     </div>
   );
-}
+};
+
+export default Home;
