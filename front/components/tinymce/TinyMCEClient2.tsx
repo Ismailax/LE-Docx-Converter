@@ -8,7 +8,7 @@ interface Props {
 const TinyEditor2 = ({ value }: Props) => {
   return (
     <Editor
-      apiKey="rtpng13nt9zot9zv2hggr8wuq2dlm8sa7s66qgrzeusjxhxr"
+      apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
       initialValue={value}
       init={{
         height: 360,
