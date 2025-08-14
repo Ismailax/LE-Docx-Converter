@@ -32,7 +32,7 @@ const CourseInfo = ({ course }: Props) => {
 
   return (
     <div className="w-full max-w-5xl mx-auto bg-white rounded-xl border border-gray-200 p-8 shadow space-y-8 mt-4">
-      <h2 className="text-2xl font-semibold text-blue-700">
+      <h2 className="text-2xl font-semibold text-purple-700">
         Course Information
       </h2>
       <LabeledInput label="ชื่อหลักสูตร (TH)" defaultValue={course.title_th} />

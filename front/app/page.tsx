@@ -42,22 +42,22 @@ const Home = () => {
   };
 
   return (
-    <div className="py-10 flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-100">
+    <div className="py-10 flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-100">
       <div className="p-8 w-full h-full space-y-6">
-        <h1 className="text-2xl font-bold text-center text-blue-700 mb-2">
+        <h1 className="text-2xl font-bold text-center text-purple-700 mb-2">
           CMU Lifelong Education
         </h1>
-        <p className="text-center text-gray-600 mb-4">
+        <p className="text-center text-slate-600 mb-4">
           Upload a course document{" "}
-          <span className="font-semibold">(.docx)</span> to extract and display
-          course information.
+          <span className="font-semibold">(.docx)</span>
+          to extract and display course information.
         </p>
 
         {!loading && !course && !error && (
           <div className="flex flex-col items-center gap-3">
             <label
               htmlFor="file-upload"
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg shadow cursor-pointer hover:bg-blue-700 transition text-base"
+              className="text-white px-6 py-2 rounded-lg shadow cursor-pointer bg-purple-700 hover:bg-purple-800 transition text-base"
             >
               Choose File
             </label>
@@ -81,9 +81,9 @@ const Home = () => {
         {error && <Failed />}
         {course && <CourseInfo course={course} />}
 
-        {(loading || error || course) && (
+        {(error || course) && (
           <button
-            className="block w-full max-w-5xl mx-auto mt-4 px-4 py-2 rounded border bg-gray-200 hover:bg-gray-300 text-gray-700 transition font-medium"
+            className="block w-full max-w-5xl mx-auto mt-4 px-4 py-2 rounded-lg bg-purple-700 hover:bg-purple-800 text-white transition font-medium"
             onClick={handleReset}
           >
             Reset
