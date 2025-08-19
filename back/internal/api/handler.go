@@ -15,7 +15,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// ใช้ cleanup ที่รับ paths หลายตัว
 func cleanup(paths ...string) {
 	for _, p := range paths {
 		os.Remove(p)
