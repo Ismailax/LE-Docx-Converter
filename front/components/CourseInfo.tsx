@@ -28,11 +28,10 @@ const CourseInfo = ({ course }: Props) => {
     }),
     [course]
   );
-  console.log("course:", course);
 
   return (
     <div className="w-full max-w-5xl mx-auto bg-white rounded-xl border border-gray-200 p-8 shadow space-y-8 mt-4">
-      <h2 className="text-2xl font-semibold text-purple-700">
+      <h2 className="text-2xl font-semibold text-purple-600">
         Course Information
       </h2>
       <LabeledInput label="ชื่อหลักสูตร (TH)" defaultValue={course.title_th} />
@@ -80,7 +79,6 @@ const CourseInfo = ({ course }: Props) => {
       <Section title="วันสิ้นสุดการชำระเงิน">
         <Editor value={html.payment_deadline} />
       </Section>
-      ``
       <Section title="ค่าธรรมเนียมในการอบรม (บาท)">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {(course.fees ?? []).length ? (

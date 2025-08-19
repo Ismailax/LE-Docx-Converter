@@ -44,7 +44,7 @@ const Home = () => {
   return (
     <div className="py-10 flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-100">
       <div className="p-8 w-full h-full space-y-6">
-        <h1 className="text-2xl font-bold text-center text-purple-700 mb-2">
+        <h1 className="text-2xl font-bold text-center text-purple-600 mb-2">
           CMU Lifelong Education
         </h1>
         <p className="text-center text-slate-600 mb-4">
@@ -57,7 +57,7 @@ const Home = () => {
           <div className="flex flex-col items-center gap-3">
             <label
               htmlFor="file-upload"
-              className="text-white px-6 py-2 rounded-lg shadow cursor-pointer bg-purple-700 hover:bg-purple-800 transition text-base"
+              className="text-white px-6 py-2 rounded-lg shadow cursor-pointer bg-purple-600 hover:bg-purple-700 transition text-base"
             >
               Choose File
             </label>
@@ -70,7 +70,7 @@ const Home = () => {
               onChange={handleFileChange}
             />
             {fileName && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-slate-600">
                 Selected file: <span className="font-semibold">{fileName}</span>
               </p>
             )}
@@ -83,7 +83,7 @@ const Home = () => {
 
         {(error || course) && (
           <button
-            className="block w-full max-w-5xl mx-auto mt-4 px-4 py-2 rounded-lg bg-purple-700 hover:bg-purple-800 text-white transition font-medium"
+            className="block w-full max-w-5xl mx-auto mt-4 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white transition font-medium"
             onClick={handleReset}
           >
             Reset
