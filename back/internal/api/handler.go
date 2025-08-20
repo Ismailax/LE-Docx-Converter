@@ -10,95 +10,104 @@ import (
 	"docx-converter-demo/internal/parser"
 	"docx-converter-demo/internal/utils"
 
-	"github.com/google/uuid"
-
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
+// ล้างไฟล์ (log สรุปให้ด้วย)
 func cleanup(paths ...string) {
 	for _, p := range paths {
-		os.Remove(p)
+		_ = os.Remove(p)
 	}
-	log.Println("[INFO] Cleaned up temporary files:", paths)
+	if len(paths) > 0 {
+		log.Println("[INFO] Cleaned up temporary files:", paths)
+	}
 }
 
 func UploadAndConvertHandler(c *fiber.Ctx) error {
 	log.Println("[INFO] Received /convert request")
 
-	fileHeader, err := c.FormFile("file")
-	if err != nil {
-		log.Printf("[ERROR] No file received: %v", err)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "File is required"})
+	// เก็บรายการไฟล์ที่ต้องลบตอนจบ (ทั้งกรณีสำเร็จ/ล้มเหลว)
+	toClean := make([]string, 0, 3)
+
+	// helper: log error + cleanup + ส่ง error ให้ logger middleware แสดงใน ${error}
+	fail := func(status int, publicMsg string, err error) error {
+		if err != nil {
+			log.Printf("[ERROR] %s: %v", publicMsg, err)
+		} else {
+			log.Printf("[ERROR] %s", publicMsg)
+		}
+		cleanup(toClean...)
+		return fiber.NewError(status, publicMsg)
 	}
 
-	// Check .docx
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		return fail(fiber.StatusBadRequest, "File is required", err)
+	}
+
+	// ตรวจนามสกุล .docx
 	if filepath.Ext(fileHeader.Filename) != ".docx" {
-		log.Printf("[ERROR] Invalid file extension: %s", fileHeader.Filename)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Only .docx files are allowed"})
+		return fail(fiber.StatusBadRequest, fmt.Sprintf("Only .docx files are allowed (got %s)", fileHeader.Filename), nil)
 	}
 
 	file, err := fileHeader.Open()
 	if err != nil {
-		log.Printf("[ERROR] Cannot open uploaded file: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Cannot open file"})
+		return fail(fiber.StatusInternalServerError, "Cannot open uploaded file", err)
 	}
 	defer file.Close()
 
 	tmpDir := "tmp"
-	os.MkdirAll(tmpDir, 0755)
+	_ = os.MkdirAll(tmpDir, 0o755)
 
-	// ใช้ uuid สำหรับไฟล์
+	// ตั้งชื่อไฟล์ชั่วคราว
 	id := uuid.New().String()
 	inputPath := filepath.Join(tmpDir, fmt.Sprintf("input-%s.docx", id))
 	plainOutput := filepath.Join(tmpDir, fmt.Sprintf("output-%s.txt", id))
 	htmlOutput := filepath.Join(tmpDir, fmt.Sprintf("output-%s.html", id))
+	toClean = append(toClean, inputPath, plainOutput, htmlOutput)
 
-	// Save uploaded file
+	// บันทึกไฟล์ที่อัปโหลด
 	log.Printf("[INFO] Saving uploaded file to %s", inputPath)
 	out, err := os.Create(inputPath)
 	if err != nil {
-		log.Printf("[ERROR] Cannot save file: %v", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Cannot save file"})
+		return fail(fiber.StatusInternalServerError, "Cannot save uploaded file", err)
 	}
-	_, err = io.Copy(out, file)
-	out.Close()
-	if err != nil {
-		log.Printf("[ERROR] Cannot save file (copy): %v", err)
-		cleanup(inputPath)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Cannot save file"})
+	if _, err = io.Copy(out, file); err != nil {
+		_ = out.Close()
+		return fail(fiber.StatusInternalServerError, "Cannot save uploaded file (copy failed)", err)
+	}
+	if err := out.Close(); err != nil {
+		return fail(fiber.StatusInternalServerError, "Cannot finalize uploaded file", err)
 	}
 
-	// Run pandoc plain
-	log.Printf("[INFO] Running pandoc to generate plain text: %s", plainOutput)
+	// รัน pandoc -> plain
+	log.Printf("[INFO] Running pandoc (plain): %s", plainOutput)
 	if err := utils.RunPandocDocker(inputPath, plainOutput, "plain"); err != nil {
-		log.Printf("[ERROR] Pandoc plain error: %v", err)
-		cleanup(inputPath, plainOutput)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "pandoc error (plain): " + err.Error()})
+		return fail(fiber.StatusInternalServerError, "pandoc error (plain)", err)
 	}
 
-	// Run pandoc html
-	log.Printf("[INFO] Running pandoc to generate HTML: %s", htmlOutput)
+	// รัน pandoc -> html
+	log.Printf("[INFO] Running pandoc (html): %s", htmlOutput)
 	if err := utils.RunPandocDocker(inputPath, htmlOutput, "html"); err != nil {
-		log.Printf("[ERROR] Pandoc HTML error: %v", err)
-		cleanup(inputPath, plainOutput, htmlOutput)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "pandoc error (html): " + err.Error()})
+		return fail(fiber.StatusInternalServerError, "pandoc error (html)", err)
 	}
 
-	// Parse
+	// แปลงเป็น JSON
 	log.Println("[INFO] Running parser...")
 	jsonBytes, err := parser.ParseDocToJSON(plainOutput, htmlOutput)
 	if err != nil {
-		log.Printf("[ERROR] Parse error: %v", err)
-		cleanup(inputPath, plainOutput, htmlOutput)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "Parse error: " + err.Error()})
+		return fail(fiber.StatusInternalServerError, "Parse error", err)
 	}
 
-	// Success
+	// ส่งผลลัพธ์สำเร็จ
 	log.Println("[INFO] Returning JSON result")
-	c.Set("Content-Type", "application/json")
-	c.Send(jsonBytes)
+	c.Type("json")
+	if err := c.Send(jsonBytes); err != nil {
+		return fail(fiber.StatusInternalServerError, "Send response failed", err)
+	}
 
-	// Cleanup async
-	go cleanup(inputPath, plainOutput, htmlOutput)
+	// ล้างไฟล์แบบ async หลังส่งแล้ว
+	go cleanup(toClean...)
 	return nil
 }
