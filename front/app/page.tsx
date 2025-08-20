@@ -42,7 +42,7 @@ const Home = () => {
   };
 
   return (
-    <div className="py-10 flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-100">
+    <div className="py-10 flex justify-center items-center min-h-screen bg-[#F8F4FF] from-blue-50 via-white to-purple-100">
       <div className="p-8 w-full h-full space-y-6">
         <h1 className="text-2xl font-bold text-center text-purple-600 mb-2">
           CMU Lifelong Education
