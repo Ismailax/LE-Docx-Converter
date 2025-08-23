@@ -22,6 +22,5 @@ func main() {
 	// Routes
 	api.RegisterRoutes(app)
 
-	log.Printf("Server listening on %s (FRONTEND_URL=%s)", config.Addr(cfg), cfg.FrontendURL)
 	log.Fatal(app.Listen(config.Addr(cfg)))
 }
