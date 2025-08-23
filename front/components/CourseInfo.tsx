@@ -79,20 +79,20 @@ const CourseInfo = ({ course }: Props) => {
       <Section title="วันสิ้นสุดการชำระเงิน">
         <Editor value={html.payment_deadline} />
       </Section>
-      <Section title="ค่าธรรมเนียมในการอบรม (บาท)">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-x-3">
+        <Section title="ค่าธรรมเนียมในการอบรม (บาท)">
           {(course.fees ?? []).length ? (
             <LabeledInput defaultValue={(course.fees ?? []).join(", ")} />
           ) : (
             <LabeledInput placeholder="0" />
           )}
-        </div>
-      </Section>
-      <LabeledInput
-        type="number"
-        label="ค่าบำรุงมหาวิทยาลัย (บาท)"
-        defaultValue={String(course.university_fees)}
-      />
+        </Section>
+        <LabeledInput
+          type="number"
+          label="ค่าบำรุงมหาวิทยาลัย (บาท)"
+          defaultValue={String(course.university_fees)}
+        />
+      </div>
       <div className="space-y-3">
         <div className="font-medium">ข้อมูลในการติดต่อสอบถาม</div>
         {(course.contacts ?? []).length ? (
