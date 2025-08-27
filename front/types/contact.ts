@@ -1,4 +1,4 @@
-export interface Contact {
+export type Contact = {
   prefix: string;
   name: string;
   surname: string;
@@ -8,4 +8,4 @@ export interface Contact {
   phones: string[] | null;
   email: string;
   websites: string[] | null;
-}
+};

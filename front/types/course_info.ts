@@ -1,6 +1,6 @@
-import { Contact } from "@/types/contact";
+import type { Contact } from "./contact";
 
-export interface CourseInfo {
+export type CourseInfo = {
   title_th: string;
   title_en: string;
   organized_by: string;
@@ -19,4 +19,4 @@ export interface CourseInfo {
   university_fees: number;
   contacts: Contact[];
   categories: string[];
-}
+};

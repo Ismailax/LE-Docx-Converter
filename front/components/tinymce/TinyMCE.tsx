@@ -5,7 +5,3 @@ import dynamic from "next/dynamic";
 export const Editor = dynamic(() => import("./TinyMCEClient"), {
   ssr: false,
 });
-
-export const Editor2 = dynamic(() => import("./TinyMCEClient2"), {
-  ssr: false,
-});

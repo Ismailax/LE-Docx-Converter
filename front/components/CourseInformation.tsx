@@ -7,11 +7,7 @@ import LabeledInput from "@/components/LabeledInput";
 import Section from "@/components/Section";
 import joinAsHtmlParagraphs from "@/utils/html";
 
-interface Props {
-  course: CourseInfo;
-}
-
-const CourseInfo = ({ course }: Props) => {
+const CourseInformation = ({ course }: { course: CourseInfo }) => {
   const html = useMemo(
     () => ({
       target: joinAsHtmlParagraphs(course.target),
@@ -133,4 +129,4 @@ const CourseInfo = ({ course }: Props) => {
   );
 };
 
-export default CourseInfo;
+export default CourseInformation;
