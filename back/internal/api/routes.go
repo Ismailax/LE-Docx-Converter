@@ -10,5 +10,5 @@ func RegisterRoutes(app *fiber.App) {
 	})
 
 	// main conversion endpoint
-	app.Post("/convert", UploadAndConvertHandler)
+	app.Post("/convert/:id", UploadAndConvertHandler)
 }

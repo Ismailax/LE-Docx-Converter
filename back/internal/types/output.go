@@ -2,6 +2,7 @@ package types
 
 type Output struct {
 	// ข้อมูลหลักสูตร
+	CourseID        string   `json:"course_id"`        // รหัสหลักสูตร
 	TitleTH         string   `json:"title_th"`         // ชื่อหลักสูตรภาษาไทย
 	TitleEN         string   `json:"title_en"`         // ชื่อหลักสูตรภาษาอังกฤษ
 	OrganizedBy     string   `json:"organized_by"`     // หน่วยงานที่จัด

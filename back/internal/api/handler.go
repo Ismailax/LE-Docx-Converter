@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -26,6 +27,12 @@ func cleanup(paths ...string) {
 
 func UploadAndConvertHandler(c *fiber.Ctx) error {
 	log.Println("[INFO] Received /convert request")
+
+	// ดึง course_id จาก path parameter
+	courseID := c.Params("id")
+	if courseID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "course_id is required in URL (e.g., /convert/12345)")
+	}
 
 	// เก็บรายการไฟล์ที่ต้องลบตอนจบ (ทั้งกรณีสำเร็จ/ล้มเหลว)
 	toClean := make([]string, 0, 3)
@@ -100,10 +107,23 @@ func UploadAndConvertHandler(c *fiber.Ctx) error {
 		return fail(fiber.StatusInternalServerError, "Parse error", err)
 	}
 
+	// แทรก course_id ลง JSON
+	var result map[string]any
+	if err := json.Unmarshal(jsonBytes, &result); err != nil {
+		return fail(fiber.StatusInternalServerError, "JSON unmarshal failed", err)
+	}
+	result["course_id"] = courseID
+
+	// marshal ใหม่
+	finalBytes, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+		return fail(fiber.StatusInternalServerError, "JSON marshal failed", err)
+	}
+
 	// ส่งผลลัพธ์สำเร็จ
 	log.Println("[INFO] Returning JSON result")
 	c.Type("json")
-	if err := c.Send(jsonBytes); err != nil {
+	if err := c.Send(finalBytes); err != nil {
 		return fail(fiber.StatusInternalServerError, "Send response failed", err)
 	}
 
