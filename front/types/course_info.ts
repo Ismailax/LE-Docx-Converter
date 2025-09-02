@@ -1,6 +1,7 @@
 import type { Contact } from "./contact";
 
 export type CourseInfo = {
+  course_id: string;
   title_th: string;
   title_en: string;
   organized_by: string;

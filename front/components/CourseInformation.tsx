@@ -3,8 +3,9 @@
 import { useMemo } from "react";
 import type { CourseInfo } from "@/types/course_info";
 import { Editor } from "@/components/tinymce/TinyMCE";
-import LabeledInput from "@/components/LabeledInput";
-import Section from "@/components/Section";
+import LabeledInput from "@/components/courseInfo/LabeledInput";
+import DateTimeField from "./courseInfo/DateTimeField";
+import Section from "@/components/courseInfo/Section";
 import joinAsHtmlParagraphs from "@/utils/html";
 
 const CourseInformation = ({ course }: { course: CourseInfo }) => {
@@ -17,9 +18,6 @@ const CourseInformation = ({ course }: { course: CourseInfo }) => {
       evaluation: joinAsHtmlParagraphs(course.evaluation),
       keywords: joinAsHtmlParagraphs(course.keywords),
       overview: joinAsHtmlParagraphs(course.overview),
-      start_enroll: joinAsHtmlParagraphs(course.start_enroll),
-      end_enroll: joinAsHtmlParagraphs(course.end_enroll),
-      payment_deadline: joinAsHtmlParagraphs(course.payment_deadline),
       categories: joinAsHtmlParagraphs(course.categories),
     }),
     [course]
@@ -30,6 +28,12 @@ const CourseInformation = ({ course }: { course: CourseInfo }) => {
       <h2 className="text-2xl font-semibold text-purple-600">
         Course Information
       </h2>
+      <LabeledInput
+        label="รหัสหลักสูตร"
+        inputClassName="w-fit"
+        defaultValue={course.course_id}
+        disabled
+      />
       <LabeledInput label="ชื่อหลักสูตร (TH)" defaultValue={course.title_th} />
       <LabeledInput
         label="ชื่อหลักสูตร (EN)"
@@ -44,6 +48,7 @@ const CourseInformation = ({ course }: { course: CourseInfo }) => {
         type="number"
         label="จำนวนผู้เข้าร่วม"
         defaultValue={String(course.enroll_limit)}
+        className="w-fit"
       />
       <Section title="กลุ่มเป้าหมาย">
         <Editor value={html.target} />
@@ -67,13 +72,15 @@ const CourseInformation = ({ course }: { course: CourseInfo }) => {
         <Editor value={html.overview} />
       </Section>
       <Section title="วันเริ่มต้นการลงทะเบียน">
-        <Editor value={html.start_enroll} />
+        <DateTimeField value={course.start_enroll?.[0]} hideIfEmpty />
       </Section>
+
       <Section title="วันสิ้นสุดการลงทะเบียน">
-        <Editor value={html.end_enroll} />
+        <DateTimeField value={course.end_enroll?.[0]} hideIfEmpty />
       </Section>
+
       <Section title="วันสิ้นสุดการชำระเงิน">
-        <Editor value={html.payment_deadline} />
+        <DateTimeField value={course.payment_deadline?.[0]} hideIfEmpty />
       </Section>
       <div className="grid grid-cols-2 gap-x-3">
         <Section title="ค่าธรรมเนียมในการอบรม (บาท)">

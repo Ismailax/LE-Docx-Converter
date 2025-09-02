@@ -1,79 +1,103 @@
 "use client";
 import { useRef, useState } from "react";
+import Image from "next/image";
 import Loading from "@/components/Loading";
 import Failed from "@/components/Failed";
 import CourseInformation from "@/components/CourseInformation";
 import type { CourseInfo as CourseInfoType } from "@/types/course_info";
 import { convertCourseDoc } from "@/lib/api/convert";
 
+import Card from "@/components/home/Card";
+import CourseIdInput from "@/components/home/CourseIdInput";
+import FilePicker from "@/components/home/FilePicker";
+import SelectedFileLabel from "@/components/home/SelectedFileLabel";
+import StepItem from "@/components/home/StepItem";
+import ConvertButton from "@/components/home/ConvertButton";
+import ResetButton from "@/components/home/ResultActions";
+
 const Home = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState("");
+  const [courseId, setCourseId] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [course, setCourse] = useState<CourseInfoType | null>(null);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) {
-      setFileName("");
-      return;
-    }
-    setFileName(files[0].name);
+  const handleConvert = async () => {
+    if (!courseId || !file) return;
     setLoading(true);
     setError(false);
     setCourse(null);
     try {
-      const data = await convertCourseDoc(files[0]);
+      const data = await convertCourseDoc(courseId, file);
       setCourse(data);
-      setLoading(false);
     } catch {
       setError(true);
+    } finally {
       setLoading(false);
     }
   };
 
   const handleReset = () => {
-    setFileName("");
+    setCourseId("");
+    setFile(null);
     setLoading(false);
     setError(false);
     setCourse(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const showPickers = !loading && !course && !error;
+
   return (
     <div className="py-10 flex justify-center items-center min-h-screen bg-[#F8F4FF] from-blue-50 via-white to-purple-100">
-      <div className="p-8 w-full h-full space-y-6">
-        <h1 className="text-2xl font-bold text-center text-purple-600 mb-2">
-          CMU Lifelong Education
-        </h1>
-        <p className="text-center text-slate-600 mb-4">
-          Upload a course document{" "}
-          <span className="font-semibold">(.docx)</span>
-          to extract and display course information.
-        </p>
+      <div className="w-full h-full space-y-6">
+        <div className="flex flex-col items-center space-y-4">
+          <Image src="/logo.png" alt="Logo" width={240} height={240} />
+          <h1 className="text-2xl font-bold text-purple-600">
+            Course Document Converter
+          </h1>
+          <p className="text-slate-600">
+            Upload a course document{" "}
+            <span className="font-semibold">(.docx)</span> to extract and
+            display course information.
+          </p>
+        </div>
 
-        {!loading && !course && !error && (
-          <div className="flex flex-col items-center gap-3">
-            <label
-              htmlFor="file-upload"
-              className="text-white px-6 py-2 rounded-lg shadow cursor-pointer bg-purple-600 hover:bg-purple-700 transition text-base"
-            >
-              Choose File
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept=".docx"
-              className="hidden"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-            />
-            {fileName && (
-              <p className="text-xs text-slate-600">
-                Selected file: <span className="font-semibold">{fileName}</span>
-              </p>
-            )}
+        {showPickers && (
+          <div className="space-y-6">
+            <Card className="max-w-xl mx-auto">
+              <StepItem step={1}>
+                <label className="block text-base font-medium text-slate-700">
+                  Course ID
+                </label>
+                <CourseIdInput value={courseId} onChange={setCourseId} />
+              </StepItem>
+            </Card>
+
+            <Card className="max-w-xl mx-auto">
+              <StepItem step={2}>
+                <label className="block text-base font-medium text-slate-700">
+                  เลือกไฟล์หลักสูตร (รองรับเฉพาะไฟล์ .docx)
+                </label>
+                <FilePicker onPick={setFile} />
+                <SelectedFileLabel file={file ?? undefined} />
+              </StepItem>
+            </Card>
+
+            <div className="max-w-xl mx-auto text-center">
+              <ConvertButton
+                courseId={courseId}
+                file={file}
+                loading={loading}
+                onConvert={handleConvert}
+              />
+              {!courseId || !file ? (
+                <p className="text-xs text-amber-600 mt-2">
+                  กรุณากรอก Course ID และเลือกไฟล์ก่อนกด Convert
+                </p>
+              ) : null}
+            </div>
           </div>
         )}
 
@@ -81,14 +105,7 @@ const Home = () => {
         {error && <Failed />}
         {course && <CourseInformation course={course} />}
 
-        {(error || course) && (
-          <button
-            className="block w-full max-w-5xl mx-auto mt-4 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white transition font-medium"
-            onClick={handleReset}
-          >
-            Reset
-          </button>
-        )}
+        <ResetButton show={Boolean(error || course)} onReset={handleReset} />
       </div>
     </div>
   );
