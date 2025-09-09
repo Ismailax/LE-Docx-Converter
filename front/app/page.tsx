@@ -6,14 +6,13 @@ import Failed from "@/components/Failed";
 import CourseInformation from "@/components/CourseInformation";
 import type { CourseInfo as CourseInfoType } from "@/types/course_info";
 import { convertCourseDoc } from "@/lib/api/convert";
-
 import Card from "@/components/home/Card";
 import CourseIdInput from "@/components/home/CourseIdInput";
 import FilePicker from "@/components/home/FilePicker";
 import SelectedFileLabel from "@/components/home/SelectedFileLabel";
 import StepItem from "@/components/home/StepItem";
 import ConvertButton from "@/components/home/ConvertButton";
-import ResetButton from "@/components/home/ResultActions";
+import ResetButton from "@/components/home/ResetButton";
 
 const Home = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -78,7 +77,10 @@ const Home = () => {
             <Card className="max-w-xl mx-auto">
               <StepItem step={2}>
                 <label className="block text-base font-medium text-slate-700">
-                  เลือกไฟล์หลักสูตร (รองรับเฉพาะไฟล์ .docx)
+                  <p>เลือกไฟล์หลักสูตร</p>
+                  <p className="text-sm text-slate-500">
+                    (รองรับเฉพาะไฟล์ .docx ขนาดไม่เกิน 15 MB)
+                  </p>
                 </label>
                 <FilePicker onPick={setFile} />
                 <SelectedFileLabel file={file ?? undefined} />
