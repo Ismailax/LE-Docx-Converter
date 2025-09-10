@@ -1,21 +1,27 @@
-// back/internal/config/config.go
 package config
 
 import (
 	"docx-converter-demo/internal/types"
+	"docx-converter-demo/internal/utils"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/joho/godotenv"
 )
 
+const (
+	DefaultPort        = "8080"
+	DefaultFrontendURL = "http://localhost:3000"
+	DefaultMaxUploadMB = 10
+)
+
 func MustLoad() *types.Config {
-	_ = godotenv.Load() // ไม่มีก็ไม่เป็นไร
+	_ = godotenv.Load() // Load .env file if exists
 
 	cfg := &types.Config{
-		Port:        getEnv("PORT", "8080"),
-		FrontendURL: getEnv("FRONTEND_URL", "*"),
+		Port:        utils.GetEnvString("PORT", DefaultPort),
+		FrontendURL: utils.GetEnvString("FRONTEND_URL", DefaultFrontendURL),
+		MaxUploadMB: utils.GetEnvInt("MAX_UPLOAD_MB", DefaultMaxUploadMB),
 	}
 
 	return cfg
@@ -33,9 +39,10 @@ func Origins(c *types.Config) string {
 	return strings.Join(parts, ",")
 }
 
-func getEnv(key, def string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
+func MaxUploadBytes(c *types.Config) int64 {
+	mb := c.MaxUploadMB
+	if mb <= 0 {
+		mb = DefaultMaxUploadMB
 	}
-	return def
+	return int64(mb) * 1024 * 1024
 }

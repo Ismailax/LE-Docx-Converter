@@ -8,12 +8,17 @@ import (
 	"os"
 	"path/filepath"
 
+	"docx-converter-demo/internal/config"
 	"docx-converter-demo/internal/parser"
 	"docx-converter-demo/internal/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 )
+
+var cfg = config.MustLoad()
+var MaxUploadMB = cfg.MaxUploadMB
+var maxUploadBytes = config.MaxUploadBytes(cfg)
 
 // ล้างไฟล์ (log สรุปให้ด้วย)
 func cleanup(paths ...string) {
@@ -26,12 +31,12 @@ func cleanup(paths ...string) {
 }
 
 func UploadAndConvertHandler(c *fiber.Ctx) error {
-	log.Println("[INFO] Received /convert request")
+	log.Println("[INFO] Received /convert/:id request")
 
 	// ดึง course_id จาก path parameter
 	courseID := c.Params("id")
 	if courseID == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "course_id is required in URL (e.g., /convert/12345)")
+		return fiber.NewError(fiber.StatusBadRequest, "course_id is required in URL (e.g., /convert/123456)")
 	}
 
 	// เก็บรายการไฟล์ที่ต้องลบตอนจบ (ทั้งกรณีสำเร็จ/ล้มเหลว)
@@ -55,9 +60,17 @@ func UploadAndConvertHandler(c *fiber.Ctx) error {
 
 	// ตรวจนามสกุล .docx
 	if filepath.Ext(fileHeader.Filename) != ".docx" {
-		return fail(fiber.StatusBadRequest, fmt.Sprintf("Only .docx files are allowed (got %s)", fileHeader.Filename), nil)
+		return fail(fiber.StatusUnsupportedMediaType, fmt.Sprintf("Only .docx files are allowed (got %s)", fileHeader.Filename), nil)
 	}
 
+	// เช็กขนาดไฟล์จาก header ก่อน (ถ้ามี)
+	// หมายเหตุ: ไฟล์ multipart ส่วนใหญ่จะมีค่า Size ให้ใช้งาน
+	if fileHeader.Size > 0 && fileHeader.Size > maxUploadBytes {
+		return fail(fiber.StatusRequestEntityTooLarge,
+			fmt.Sprintf("File too large (max %d MB)", MaxUploadMB), nil)
+	}
+
+	// เปิดไฟล์ที่อัปโหลด
 	file, err := fileHeader.Open()
 	if err != nil {
 		return fail(fiber.StatusInternalServerError, "Cannot open uploaded file", err)
@@ -76,16 +89,25 @@ func UploadAndConvertHandler(c *fiber.Ctx) error {
 
 	// บันทึกไฟล์ที่อัปโหลด
 	log.Printf("[INFO] Saving uploaded file to %s", inputPath)
+
 	out, err := os.Create(inputPath)
 	if err != nil {
 		return fail(fiber.StatusInternalServerError, "Cannot save uploaded file", err)
 	}
-	if _, err = io.Copy(out, file); err != nil {
-		_ = out.Close()
+	defer out.Close()
+
+	// คัดลอกข้อมูลจากไฟล์ที่อัปโหลดไปยังไฟล์ปลายทาง โดยจำกัดขนาดด้วย io.LimitedReader
+	// เพื่อป้องกันการอัปโหลดไฟล์ขนาดใหญ่เกินกำหนดจริงๆ
+	// (กรณีที่ client ไม่ส่ง Content-Length หรือส่งค่าไม่ถูกต้องมา)
+	limited := &io.LimitedReader{R: file, N: maxUploadBytes + 1}
+	written, err := io.Copy(out, limited)
+	if err != nil {
 		return fail(fiber.StatusInternalServerError, "Cannot save uploaded file (copy failed)", err)
 	}
-	if err := out.Close(); err != nil {
-		return fail(fiber.StatusInternalServerError, "Cannot finalize uploaded file", err)
+	if written > maxUploadBytes {
+		_ = os.Remove(inputPath)
+		return fail(fiber.StatusRequestEntityTooLarge,
+			fmt.Sprintf("File too large (max %d MB)", MaxUploadMB), nil)
 	}
 
 	// รัน pandoc -> plain

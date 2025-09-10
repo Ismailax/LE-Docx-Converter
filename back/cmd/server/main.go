@@ -13,7 +13,9 @@ import (
 func main() {
 	cfg := config.MustLoad()
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: int(config.MaxUploadBytes(cfg)), // Set max body size to max upload size
+	})
 
 	// Middlewares
 	app.Use(middleware.Logger())
