@@ -79,7 +79,7 @@ const Home = () => {
                 <label className="block text-base font-medium text-slate-700">
                   <p>เลือกไฟล์หลักสูตร</p>
                   <p className="text-sm text-slate-500">
-                    (รองรับเฉพาะไฟล์ .docx ขนาดไม่เกิน 15 MB)
+                    (รองรับเฉพาะไฟล์ .docx ขนาดไม่เกิน 10 MB)
                   </p>
                 </label>
                 <FilePicker onPick={setFile} />

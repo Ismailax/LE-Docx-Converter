@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { ChangeEvent, useRef } from "react";
 
 type Props = {
   onPick: (file: File | null) => void;
@@ -9,7 +9,7 @@ type Props = {
 const FilePicker = ({ onPick, disabled }: Props) => {
   const ref = useRef<HTMLInputElement>(null);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files && e.target.files[0] ? e.target.files[0] : null;
     onPick(f);
   };
