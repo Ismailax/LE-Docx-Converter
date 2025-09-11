@@ -29,6 +29,7 @@ Create a .env file in the back/ directory.
 ```bash
 PORT=8080
 FRONTEND_URL=http://localhost:3000
+MAX_UPLOAD_MB=10
 ```
 
 #### Installation & Run
@@ -100,6 +101,7 @@ The frontend server will start at http://localhost:3000.
 - **Pandoc errors:** Ensure Docker Desktop is running.
 - **CORS errors:** Check that the backend .env value for FRONTEND_URL matches your frontend URL.
 - **Port conflicts:** If default ports are in use, update the port settings in the backend and frontend.
+
 
 
 
