@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
+const basePath = process.env.NEXT_PUBLIC_APP_BASEPATH || "";
+
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: "standalone",
+  basePath,
 };
 
 export default nextConfig;

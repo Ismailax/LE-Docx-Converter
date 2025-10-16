@@ -15,21 +15,22 @@ A web application for extracting and displaying course information from `.docx` 
 git clone https://github.com/Ismailax/docx-conveter-demo.git
 cd docx-conveter-demo
 ```
+
 ### 2. Backend Setup (back/)
 
 #### Prerequisites
 
 - Go 1.21 or newer
--	Docker (required for Pandoc conversion)
+- Docker (required for Pandoc conversion)
 
 #### Environment Variables
 
 Create a .env file in the back/ directory.
 
 ```bash
-PORT=8080
-FRONTEND_URL=http://localhost:3000
-MAX_UPLOAD_MB=10
+PORT=
+CORS_ALLOW_ORIGINS=
+MAX_UPLOAD_MB=
 ```
 
 #### Installation & Run
@@ -47,11 +48,13 @@ cd back
 ```
 
 **Windows**
+
 ```bash
 go run .\cmd\server
 ```
 
 **macOS / Linux**
+
 ```bash
 go run ./cmd/server
 ```
@@ -66,7 +69,7 @@ The backend server will start at http://localhost:8080.
 
 - Node.js v18+ (or compatible)
 - npm, yarn, or pnpm
- 
+
 #### Environment Variables
 
 Create a .env file in the front/ directory.
@@ -92,16 +95,12 @@ The frontend server will start at http://localhost:3000.
 
 ## Usage
 
-1.	Open the frontend in your browser.
-2.	Upload a .docx course document.
-3.	The extracted course information will be displayed on the page.
+1. Open the frontend in your browser.
+2. Upload a .docx course document.
+3. The extracted course information will be displayed on the page.
 
 ## Troubleshooting
 
 - **Pandoc errors:** Ensure Docker Desktop is running.
-- **CORS errors:** Check that the backend .env value for FRONTEND_URL matches your frontend URL.
+- **CORS errors:** Check that the backend .env value for CORS_ALLOW_ORIGINS matches your frontend URL.
 - **Port conflicts:** If default ports are in use, update the port settings in the backend and frontend.
-
-
-
-

@@ -3,18 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev -p 3000 --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3000",
     "lint": "next lint"
   },
   "dependencies": {
     "@tinymce/tinymce-react": "^6.3.0",
-    "axios": "^1.11.0",
-    "next": "15.5.2",
-    "react": "19.1.1",
-    "react-dom": "19.1.1",
-    "tinymce": "^8.0.2"
+    "axios": "^1.12.2",
+    "next": "15.5.5",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "tinymce": "^8.1.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -23,7 +23,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.5.2",
+    "eslint-config-next": "15.5.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

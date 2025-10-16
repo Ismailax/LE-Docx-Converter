@@ -10,8 +10,7 @@ import (
 )
 
 const (
-	DefaultPort        = "8080"
-	DefaultFrontendURL = "http://localhost:3000"
+	DefaultPort        = "2000"
 	DefaultMaxUploadMB = 10
 )
 
@@ -19,9 +18,9 @@ func MustLoad() *types.Config {
 	_ = godotenv.Load() // Load .env file if exists
 
 	cfg := &types.Config{
-		Port:        utils.GetEnvString("PORT", DefaultPort),
-		FrontendURL: utils.GetEnvString("FRONTEND_URL", DefaultFrontendURL),
-		MaxUploadMB: utils.GetEnvInt("MAX_UPLOAD_MB", DefaultMaxUploadMB),
+		Port:             utils.GetEnvString("PORT", DefaultPort),
+		CORSAllowOrigins: utils.GetEnvString("CORS_ALLOW_ORIGINS", ""),
+		MaxUploadMB:      utils.GetEnvInt("MAX_UPLOAD_MB", DefaultMaxUploadMB),
 	}
 
 	return cfg
@@ -32,7 +31,10 @@ func Addr(c *types.Config) string {
 }
 
 func Origins(c *types.Config) string {
-	parts := strings.Split(c.FrontendURL, ",")
+	if c.CORSAllowOrigins == "" {
+		return ""
+	}
+	parts := strings.Split(c.CORSAllowOrigins, ",")
 	for i := range parts {
 		parts[i] = strings.TrimSpace(parts[i])
 	}
