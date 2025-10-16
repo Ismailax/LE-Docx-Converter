@@ -14,6 +14,9 @@ interface Props {
   value: string;
 }
 
+const basePath = process.env.NEXT_PUBLIC_APP_BASEPATH || "";
+const withBase = (p: string) => `${basePath}${p.startsWith("/") ? p : `/${p}`}`;
+
 const TinyEditor = ({ value }: Props) => {
   return (
     <Editor
@@ -25,10 +28,10 @@ const TinyEditor = ({ value }: Props) => {
         plugins: "table lists code autoresize importcss",
         toolbar:
           "undo redo | styles | bold italic underline | bullist numlist | table | removeformat | code",
-        skin_url: "/tinymce/skins/ui/oxide",
+        skin_url: withBase("/tinymce/skins/ui/oxide"),
         content_css: [
-          "/tinymce/skins/ui/oxide/content.min.css",
-          "/tinymce/skins/content/default/content.min.css",
+          withBase("/tinymce/skins/ui/oxide/content.min.css"),
+          withBase("/tinymce/skins/content/default/content.min.css"),
         ],
 
         valid_elements: "*[*]",

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "@/styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "Course Document Converter Demo",
+  title: "Course Document Converter",
   description:
     "A web application for extracting and displaying course information from .docx files.",
 };

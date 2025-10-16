@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import Image from "next/image";
+import logo from "@/public/logo.png";
 import Loading from "@/components/Loading";
 import Failed from "@/components/Failed";
 import CourseInformation from "@/components/CourseInformation";
@@ -52,7 +53,7 @@ const Home = () => {
     <div className="py-10 flex justify-center items-center min-h-screen bg-[#F8F4FF] from-blue-50 via-white to-purple-100">
       <div className="w-full h-full space-y-6">
         <div className="flex flex-col items-center space-y-4">
-          <Image src="/logo.png" alt="Logo" width={240} height={240} priority />
+          <Image src={logo} alt="Logo" width={240} height={240} priority />
           <h1 className="text-2xl font-bold text-purple-600">
             Course Document Converter
           </h1>
