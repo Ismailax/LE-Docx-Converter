@@ -1,31 +1,45 @@
-# CMU Lifelong Education Course Document Converter Demo
+# CMU Lifelong Education — Course Document Converter
 
-A web application for extracting and displaying course information from `.docx` files.
+A web application for extracting and displaying structured course information from `.docx` files.  
+Developed for **Chiang Mai University School of Lifelong Education**.
 
-## Project Structure
+---
 
-- `back/` — Go (Fiber) backend API for document conversion
-- `front/` — Next.js frontend for file upload and data display
+## 🧩 Project Structure
 
-## Getting Started
+| Directory | Description |
+|------------|-------------|
+| `back/` | Go (Fiber) backend API for document conversion |
+| `front/` | Next.js frontend for file upload and parsed data display |
+
+---
+
+## 🚀 Getting Started (Development)
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Ismailax/docx-conveter-demo.git
-cd docx-conveter-demo
+git clone https://github.com/Ismailax/docx-converter-demo.git
+cd docx-converter-demo
 ```
 
-### 2. Backend Setup (back/)
+---
 
-#### Prerequisites
+### 2. Backend Setup (`back/`)
 
-- Go 1.21 or newer
+#### 📋 Prerequisites
+- Go 1.21 or newer  
 - Docker (required for Pandoc conversion)
 
-#### Environment Variables
+#### ⚙️ Environment Variables
+Create a `.env` file inside the `back/` directory using the provided example:
 
-Create a .env file in the back/ directory.
+```bash
+cp back/.env.example back/.env
+```
+
+Then edit the file as needed.  
+Example variables:
 
 ```bash
 PORT=
@@ -33,9 +47,11 @@ CORS_ALLOW_ORIGINS=
 MAX_UPLOAD_MB=
 ```
 
-#### Installation & Run
+> In production, make sure to set these values according to your deployment environment.
 
-Before running the backend, make sure to pull the Pandoc Docker image:
+#### 🛠️ Installation & Run
+
+Pull the Pandoc Docker image (used for conversion):
 
 ```bash
 docker pull pandoc/core:latest
@@ -45,62 +61,95 @@ Then start the backend:
 
 ```bash
 cd back
-```
-
-**Windows**
-
-```bash
-go run .\cmd\server
-```
-
-**macOS / Linux**
-
-```bash
 go run ./cmd/server
 ```
 
-The backend server will start at http://localhost:8080.
+The backend server will start at the port defined in your `.env` file.
 
-> **Note:** Ensure that Docker Desktop is running before starting the backend, as Pandoc is executed inside a temporary Docker container created from the pandoc/core:latest image.
+---
 
-### 3. Frontend Setup (front/)
+### 3. Frontend Setup (`front/`)
 
-#### Prerequisites
-
-- Node.js v18+ (or compatible)
+#### 📋 Prerequisites
+- Node.js v18+ or newer  
 - npm, yarn, or pnpm
 
-#### Environment Variables
-
-Create a .env file in the front/ directory.
+#### ⚙️ Environment Variables
+Create a `.env.local` file inside the `front/` directory:
 
 ```bash
-NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
+cp front/.env.example front/.env.local
 ```
 
-#### Installation
+Then edit the values to match your environment.
+
+Example variables:
+
+```bash
+NEXT_PUBLIC_APP_BASEPATH=
+NEXT_PUBLIC_BACKEND_URL=
+```
+
+#### 📦 Installation
 
 ```bash
 cd front
-npm install          # or: yarn install, pnpm install
+npm install
 ```
 
-#### Development Server
+#### 🧭 Development Server
 
 ```bash
-npm run dev          # or: yarn dev, pnpm dev
+npm run dev
 ```
 
-The frontend server will start at http://localhost:3000.
+The frontend will start at the port defined in your script (default: 3000).
 
-## Usage
+---
+
+## 🖥️ Usage
 
 1. Open the frontend in your browser.
-2. Upload a .docx course document.
-3. The extracted course information will be displayed on the page.
+2. Upload a `.docx` course document.
+3. The extracted course information will be displayed.
 
-## Troubleshooting
+---
 
-- **Pandoc errors:** Ensure Docker Desktop is running.
-- **CORS errors:** Check that the backend .env value for CORS_ALLOW_ORIGINS matches your frontend URL.
-- **Port conflicts:** If default ports are in use, update the port settings in the backend and frontend.
+## ⚠️ Troubleshooting
+
+| Issue | Solution |
+|--------|-----------|
+| **Pandoc errors** | Ensure Docker Desktop is running and the `pandoc/core:latest` image is available. |
+| **CORS errors** | Check that `CORS_ALLOW_ORIGINS` in backend `.env` matches your frontend URL. |
+| **Port conflicts** | Change port values in the `.env` files if needed. |
+| **TinyMCE assets missing** | Ensure that `public/tinymce/` exists in the frontend build output. |
+
+---
+
+## 🏗️ Deployment Notes
+
+| Component | Container Port | Public URL (via reverse proxy) |
+|------------|----------------|--------------------------------|
+| Frontend | `3000` | `/docx-converter/` |
+| Backend (API) | `2000` | `/docx-converter-api/` |
+
+Both components are configured entirely via `.env` files — **no code modification required**.
+
+---
+
+## 🏫 Acknowledgement
+
+This project was developed as a **Senior Project** for the  
+**Department of Computer Engineering, Faculty of Engineering, Chiang Mai University.**
+
+Developed by:  
+**Jiradate Oratai**, **Nontapan Chanadee**, **Thatthana Sringoen**, and **Surapa Luangpiwdet**
+
+Project Advisor:  
+**Kampol Woradit**
+
+in collaboration with the  
+**Chiang Mai University School of Lifelong Education**,  
+which serves as the primary stakeholder and future maintainer of this system.
+
+© 2025 Chiang Mai University. All rights reserved.
