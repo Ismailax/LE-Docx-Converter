@@ -110,15 +110,21 @@ func UploadAndConvertHandler(c *fiber.Ctx) error {
 			fmt.Sprintf("File too large (max %d MB)", MaxUploadMB), nil)
 	}
 
-	// รัน pandoc -> plain
+	// รัน pandoc -> plain text
 	log.Printf("[INFO] Running pandoc (plain): %s", plainOutput)
-	if err := utils.RunPandocDocker(inputPath, plainOutput, "plain"); err != nil {
+	// if err := utils.RunPandocDocker(inputPath, plainOutput, "plain"); err != nil {
+	// 	return fail(fiber.StatusInternalServerError, "pandoc error (plain)", err)
+	// }
+	if err := utils.RunPandoc(inputPath, plainOutput, "plain"); err != nil {
 		return fail(fiber.StatusInternalServerError, "pandoc error (plain)", err)
 	}
 
 	// รัน pandoc -> html
 	log.Printf("[INFO] Running pandoc (html): %s", htmlOutput)
-	if err := utils.RunPandocDocker(inputPath, htmlOutput, "html"); err != nil {
+	// if err := utils.RunPandocDocker(inputPath, htmlOutput, "html"); err != nil {
+	// 	return fail(fiber.StatusInternalServerError, "pandoc error (html)", err)
+	// }
+	if err := utils.RunPandoc(inputPath, htmlOutput, "html"); err != nil {
 		return fail(fiber.StatusInternalServerError, "pandoc error (html)", err)
 	}
 

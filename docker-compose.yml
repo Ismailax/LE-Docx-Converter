@@ -1,0 +1,37 @@
+ืname: le-docx-converter
+
+services:
+  backend:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    container_name: docx-backend
+    env_file: [./back/.env]
+    expose: ["2000"]
+    networks: [docxnet]
+
+  frontend:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_APP_BASEPATH: ${NEXT_PUBLIC_APP_BASEPATH}
+        NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
+    container_name: docx-frontend
+    env_file: [./front/.env]
+    expose: ["3000"]
+    depends_on: [backend]
+    networks: [docxnet]
+
+  reverse-proxy:
+    image: nginx:stable-alpine
+    container_name: docx-nginx
+    ports:
+      - "3011:3011"
+      - "2011:2011"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on: [frontend, backend]
+    networks: [docxnet]
+
+networks: { docxnet: {} }
