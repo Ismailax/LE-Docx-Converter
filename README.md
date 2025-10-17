@@ -1,6 +1,6 @@
-# CMU Lifelong Education — Course Document Converter
+# 🧾 CMU Lifelong Education — Course Document Converter
 
-A web application for extracting and displaying structured course information from `.docx` files.  
+A full-stack web application for extracting and displaying structured course information from `.docx` files.  
 Developed for **Chiang Mai University School of Lifelong Education**.
 
 ---
@@ -10,14 +10,21 @@ Developed for **Chiang Mai University School of Lifelong Education**.
 | Directory | Description |
 |------------|-------------|
 | `back/` | Go (Fiber) backend API for document conversion |
-| `front/` | Next.js frontend for file upload and parsed data display |
+| `front/` | Next.js frontend for uploading and displaying parsed data |
+| `nginx/` | Reverse proxy configuration for production |
+| `docker-compose.yml` | Containerized setup for both frontend and backend |
 
 ---
 
-## 🚀 Getting Started (Development)
+## 🚀 Getting Started (via Docker)
 
-### 1. Clone the repository
+### 1️⃣ Prerequisites
+- Docker & Docker Compose (v2+)
+- Git
 
+---
+
+### 2️⃣ Clone the repository
 ```bash
 git clone https://github.com/Ismailax/docx-converter-demo.git
 cd docx-converter-demo
@@ -25,115 +32,83 @@ cd docx-converter-demo
 
 ---
 
-### 2. Backend Setup (`back/`)
+### 3️⃣ Configure environment variables
 
-#### 📋 Prerequisites
-- Go 1.21 or newer  
-- Docker (required for Pandoc conversion)
-
-#### ⚙️ Environment Variables
-Create a `.env` file inside the `back/` directory using the provided example:
-
-```bash
-cp back/.env.example back/.env
-```
-
-Then edit the file as needed.  
-Example variables:
-
+#### 🔧 Backend (`back/.env`)
 ```bash
 PORT=
 CORS_ALLOW_ORIGINS=
 MAX_UPLOAD_MB=
 ```
 
-> In production, make sure to set these values according to your deployment environment.
-
-#### 🛠️ Installation & Run
-
-Pull the Pandoc Docker image (used for conversion):
-
-```bash
-docker pull pandoc/core:latest
-```
-
-Then start the backend:
-
-```bash
-cd back
-go run ./cmd/server
-```
-
-The backend server will start at the port defined in your `.env` file.
-
----
-
-### 3. Frontend Setup (`front/`)
-
-#### 📋 Prerequisites
-- Node.js v18+ or newer  
-- npm, yarn, or pnpm
-
-#### ⚙️ Environment Variables
-Create a `.env.local` file inside the `front/` directory:
-
-```bash
-cp front/.env.example front/.env.local
-```
-
-Then edit the values to match your environment.
-
-Example variables:
-
+#### 🔧 Frontend (`front/.env`)
 ```bash
 NEXT_PUBLIC_APP_BASEPATH=
 NEXT_PUBLIC_BACKEND_URL=
 ```
 
-#### 📦 Installation
+---
+
+### 4️⃣ Run everything with Docker Compose
 
 ```bash
-cd front
-npm install
+docker compose --env-file ./front/.env up -d --build
 ```
 
-#### 🧭 Development Server
+Docker will build and run 3 containers:
 
-```bash
-npm run dev
-```
-
-The frontend will start at the port defined in your script (default: 3000).
+| Service | Internal Port | External Port | Role |
+|----------|----------------|----------------|------|
+| `docx-frontend` | 3000 | 3011 | Next.js frontend |
+| `docx-backend` | 2000 | 2011 | Go (Fiber) backend |
+| `docx-nginx` | 3011, 2011 | 3011, 2011 | Reverse proxy (frontend/backend entrypoints) |
 
 ---
 
-## 🖥️ Usage
+## 🧭 Directory Layout
 
-1. Open the frontend in your browser.
-2. Upload a `.docx` course document.
-3. The extracted course information will be displayed.
+```
+docx-converter/
+├── back/                  # Go backend
+│   ├── cmd/server         # Main entry
+│   ├── internal/          # Conversion logic
+│   ├── go.mod / go.sum
+│   └── .env
+├── front/                 # Next.js frontend
+│   ├── app/               # App router
+│   ├── components/
+│   ├── public/
+│   └── .env
+├── nginx/                 # NGINX configs
+│   └── nginx.conf
+└── docker-compose.yml
+```
 
 ---
 
-## ⚠️ Troubleshooting
+## 🧰 Troubleshooting
 
-| Issue | Solution |
-|--------|-----------|
-| **Pandoc errors** | Ensure Docker Desktop is running and the `pandoc/core:latest` image is available. |
-| **CORS errors** | Check that `CORS_ALLOW_ORIGINS` in backend `.env` matches your frontend URL. |
-| **Port conflicts** | Change port values in the `.env` files if needed. |
-| **TinyMCE assets missing** | Ensure that `public/tinymce/` exists in the frontend build output. |
+| Issue | Cause | Solution |
+|-------|--------|----------|
+| `404` after deploy | BasePath misconfigured | Check `NEXT_PUBLIC_APP_BASEPATH` and Nginx `location /docx-converter` |
+| `CORS` error | Origin mismatch | Add correct origin in `CORS_ALLOW_ORIGINS` |
+| `502 Bad Gateway` | Backend container not ready | Run `docker compose logs backend` |
+| `pandoc` not found | Missing dependency in container | Ensure backend Dockerfile installs `pandoc` |
+| Static assets 404 | BasePath mismatch | Confirm basePath in `next.config.ts` matches `/docx-converter` |
 
 ---
 
 ## 🏗️ Deployment Notes
 
-| Component | Container Port | Public URL (via reverse proxy) |
-|------------|----------------|--------------------------------|
-| Frontend | `3000` | `/docx-converter/` |
-| Backend (API) | `2000` | `/docx-converter-api/` |
+Once deployed, the application will be served under:
 
-Both components are configured entirely via `.env` files — **no code modification required**.
+- **Frontend (UI):**  
+  🔗 https://www.lifelong.cmu.ac.th/docx-converter/
+
+- **Backend (API):**  
+  🔗 https://www.lifelong.cmu.ac.th/docx-converter-api/
+
+All internal routing between the frontend, backend, and Nginx containers is handled automatically by Docker Compose.
 
 ---
 
