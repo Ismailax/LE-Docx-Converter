@@ -1,4 +1,4 @@
-name: docx-converter
+ืname: le-docx-converter
 
 services:
   backend:
@@ -6,16 +6,9 @@ services:
       context: ./back
       dockerfile: Dockerfile
     container_name: docx-backend
-    env_file:
-      - ./back/.env
-    expose:
-      - "2000"
-    # สำหรับทดสอบบนเครื่อง ให้เปิดพอร์ตด้วย (ลบออกได้เมื่อใช้ reverse proxy)
-    ports:
-      - "2011:2000"
-    restart: unless-stopped
-    networks:
-      - docxnet
+    env_file: [./back/.env]
+    expose: ["2000"]
+    networks: [docxnet]
 
   frontend:
     build:
@@ -25,31 +18,20 @@ services:
         NEXT_PUBLIC_APP_BASEPATH: ${NEXT_PUBLIC_APP_BASEPATH}
         NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
     container_name: docx-frontend
-    env_file:
-      - ./front/.env
-    expose:
-      - "3000"
-    # สำหรับทดสอบบนเครื่อง ให้เปิดพอร์ตด้วย (ลบออกได้เมื่อใช้ reverse proxy)
-    ports:
-      - "3011:3000"
-    depends_on:
-      - backend
-    restart: unless-stopped
-    networks:
-      - docxnet
+    env_file: [./front/.env]
+    expose: ["3000"]
+    depends_on: [backend]
+    networks: [docxnet]
 
   reverse-proxy:
     image: nginx:stable-alpine
     container_name: docx-nginx
     ports:
-      - "80:80"
+      - "3011:3011"
+      - "2011:2011"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - frontend
-      - backend
-    networks:
-      - docxnet
+    depends_on: [frontend, backend]
+    networks: [docxnet]
 
-networks:
-  docxnet:
+networks: { docxnet: {} }
