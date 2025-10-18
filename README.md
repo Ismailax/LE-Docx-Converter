@@ -27,7 +27,7 @@ Developed for **Chiang Mai University School of Lifelong Education**.
 ### 2️⃣ Clone the repository
 ```bash
 git clone https://github.com/Ismailax/LE-Docx-Converter.git
-cd docx-converter-demo
+cd LE-Docx-Converter
 ```
 
 ---
@@ -128,4 +128,5 @@ in collaboration with the
 which serves as the primary stakeholder and future maintainer of this system.
 
 © 2025 Chiang Mai University. All rights reserved.
+
 
