@@ -65,6 +65,16 @@ Docker will build and run 3 containers:
 
 ---
 
+### 5️⃣ Local URLs (Development/Test)
+
+- **Frontend (UI):**  
+  🔗 http://localhost:3011/docx-converter
+  
+- **Backend (API Base):**  
+  🔗 http://localhost:2011/docx-converter-api
+  
+___
+
 ## 🧭 Directory Layout
 
 ```
@@ -98,14 +108,14 @@ docx-converter/
 
 ---
 
-## 🏗️ Deployment Notes
+## 🏗️ Deployment Notes (For LE Admin)
 
 Once deployed, the application will be served under:
 
 - **Frontend (UI):**  
   🔗 https://www.lifelong.cmu.ac.th/docx-converter/
 
-- **Backend (API):**  
+- **Backend (API Base):**  
   🔗 https://www.lifelong.cmu.ac.th/docx-converter-api/
 
 All internal routing between the frontend, backend, and Nginx containers is handled automatically by Docker Compose.
@@ -128,5 +138,6 @@ in collaboration with the
 which serves as the primary stakeholder and future maintainer of this system.
 
 © 2025 Chiang Mai University. All rights reserved.
+
 
 
