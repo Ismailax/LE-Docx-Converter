@@ -80,18 +80,28 @@ ___
 ```
 docx-converter/
 ├── back/                  # Go backend
-│   ├── cmd/server         # Main entry
-│   ├── internal/          # Conversion logic
-│   ├── go.mod / go.sum
-│   └── .env
-├── front/                 # Next.js frontend
-│   ├── app/               # App router
-│   ├── components/
-│   ├── public/
-│   └── .env
-├── nginx/                 # NGINX configs
-│   └── nginx.conf
-└── docker-compose.yml
+│   ├── cmd/server           # Main entry
+│   ├── internal/            # Conversion logic
+│   ├── go.mod               # Go module definition (dependencies)
+│   ├── go.sum               # Go dependency checksums
+│   ├── Dockerfile           # Backend container image build definition
+│   └── .env                 # Backend environment variables
+├── front/                 # Next.js frontend 
+│   ├── app/                 # App Router structure 
+│   ├── components/          # Reusable UI components 
+│   ├── lib/                 # API clients and utility hooks
+│   ├── styles/              # Global styles and Tailwind configuration
+│   ├── types/               # Shared TypeScript types
+│   ├── utils/               # Helper functions 
+│   ├── public/              # Static assets (logo, icons, etc.)
+│   ├── next.config.ts       # Next.js configuration (basePath, output, etc.)
+│   ├── package.json         # Frontend dependencies and scripts
+│   ├── package-lock.json    # Locked dependency versions
+│   ├── Dockerfile           # Frontend container image build definition
+│   └── .env                 # Frontend environment variables
+├── nginx/                 # Reverse proxy configuration
+│   └── nginx.conf           # NGINX routing rules
+└── docker-compose.yml     # Defines and links all services  
 ```
 
 ---
@@ -138,6 +148,7 @@ in collaboration with the
 which serves as the primary stakeholder and future maintainer of this system.
 
 © 2025 Chiang Mai University. All rights reserved.
+
 
 
 
