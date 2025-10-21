@@ -1,4 +1,4 @@
-ืname: le-docx-converter
+name: le-docx-converter
 
 services:
   backend:
