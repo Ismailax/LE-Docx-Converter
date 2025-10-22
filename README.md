@@ -10,7 +10,7 @@ Developed for **Chiang Mai University School of Lifelong Education**.
 | Directory | Description |
 |------------|-------------|
 | `back/` | Go (Fiber) backend API for document conversion |
-| `front/` | Next.js frontend for uploading and displaying parsed data |
+| `front/` | Next.js frontend for uploading and displaying parsed data (used for demonstration only)|
 | `nginx/` | Reverse proxy configuration for production |
 | `docker-compose.yml` | Containerized setup for both frontend and backend |
 
@@ -67,7 +67,7 @@ Docker will build and run 3 containers:
 
 ### 5️⃣ Local URLs (Development/Test)
 
-- **Frontend (UI):**  
+- **Frontend (UI Demonstration):**  
   🔗 http://localhost:3011/docx-converter
   
 - **Backend (API Base):**  
@@ -104,6 +104,10 @@ docx-converter/
 └── docker-compose.yml     # Defines and links all services  
 ```
 
+> **Note:**  
+> The `front/` directory provides a demonstration frontend (Next.js) for testing the document conversion API. It simulates how course files are uploaded and processed into JSON format, and is intended for development and testing purposes only — not the official Lifelong Education admin interface.
+
+
 ---
 
 ## 🧰 Troubleshooting
@@ -122,13 +126,26 @@ docx-converter/
 
 Once deployed, the application will be served under:
 
-- **Frontend (UI):**  
+- **Frontend (UI Demonstration):**  
   🔗 https://www.lifelong.cmu.ac.th/docx-converter/
 
 - **Backend (API Base):**  
   🔗 https://www.lifelong.cmu.ac.th/docx-converter-api/
 
 All internal routing between the frontend, backend, and Nginx containers is handled automatically by Docker Compose.
+
+---
+
+## 📎 Supplementary Files (for Evaluation)
+
+For project evaluation and testing purposes, the following files are provided via Google Drive:
+
+- `.env` sample file for both frontend and backend  
+  🔗 [.env file](https://drive.google.com/file/d/1HaPIE5fCZvemOesj4FPkMmldCPEOSAOk/view?usp=sharing)
+  >This file includes example environment variables for both the backend and frontend. Copy the relevant values into `back/.env` and `front/.env` before running the application.
+
+- Example course documents (`.docx`) used for conversion testing  
+  🔗 [Download example course documents](https://drive.google.com/drive/folders/1XMXiGcie7jpH_3H0mQR9pyxVwNobY2W6?usp=sharing)
 
 ---
 
@@ -148,6 +165,7 @@ in collaboration with the
 which serves as the primary stakeholder and future maintainer of this system.
 
 © 2025 Chiang Mai University. All rights reserved.
+
 
 
 
