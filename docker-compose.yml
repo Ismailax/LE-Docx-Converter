@@ -9,6 +9,7 @@ services:
     env_file: [./back/.env]
     expose: ["2000"]
     networks: [docxnet]
+    restart: always
 
   frontend:
     build:
@@ -22,6 +23,7 @@ services:
     expose: ["3000"]
     depends_on: [backend]
     networks: [docxnet]
+    restart: always
 
   reverse-proxy:
     image: nginx:stable-alpine
@@ -33,5 +35,6 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on: [frontend, backend]
     networks: [docxnet]
+    restart: always
 
 networks: { docxnet: {} }
