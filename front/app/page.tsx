@@ -65,9 +65,8 @@ const Home = () => {
             Course Document Converter
           </h1>
           <p className="text-slate-600">
-            Upload a course document{" "}
-            <span className="font-semibold">(.docx)</span> to extract and
-            display course information.
+            This is a demonstration frontend for testing the document conversion
+            API, <br /> not the official Lifelong Education admin interface.
           </p>
         </div>
 
@@ -76,7 +75,7 @@ const Home = () => {
             <Card className="max-w-xl mx-auto">
               <StepItem step={1}>
                 <label className="block text-base font-medium text-slate-700">
-                  Course ID
+                  Course ID (กรอกเลขอะไรก็ได้)
                 </label>
                 <CourseIdInput value={courseId} onChange={setCourseId} />
               </StepItem>
