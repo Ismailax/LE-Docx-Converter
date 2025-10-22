@@ -122,7 +122,7 @@ docx-converter/
 
 ---
 
-## 🏗️ Deployment Notes (For LE Admin)
+## 🏗️ Deployment Notes (for LE Admin)
 
 Once deployed, the application will be served under:
 
@@ -165,6 +165,7 @@ in collaboration with the
 which serves as the primary stakeholder and future maintainer of this system.
 
 © 2025 Chiang Mai University. All rights reserved.
+
 
 
 
