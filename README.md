@@ -1,6 +1,6 @@
 # 🧾 CMU Lifelong Education — Course Document Converter
 
-A full-stack web application for extracting and displaying structured course information from `.docx` files.  
+A web application for extracting and displaying structured course information from `.docx` files.  
 Developed for **Chiang Mai University School of Lifelong Education**.
 
 ---
@@ -145,7 +145,7 @@ For project evaluation and testing purposes, the following files are provided vi
   >This file includes example environment variables for both the backend and frontend. Copy the relevant values into `back/.env` and `front/.env` before running the application.
 
 - Example course documents (`.docx`) used for conversion testing  
-  🔗 [Download example course documents](https://drive.google.com/drive/folders/1XMXiGcie7jpH_3H0mQR9pyxVwNobY2W6?usp=sharing)
+  🔗 [example course documents](https://drive.google.com/drive/folders/1XMXiGcie7jpH_3H0mQR9pyxVwNobY2W6?usp=sharing)
 
 ---
 
@@ -165,9 +165,3 @@ in collaboration with the
 which serves as the primary stakeholder and future maintainer of this system.
 
 © 2025 Chiang Mai University. All rights reserved.
-
-
-
-
-
-
